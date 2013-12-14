@@ -1,0 +1,21 @@
+Dec 5
+  After testing the algorithm many times, using conservation of Energy as a sanity check, we
+appear to have energy conservation when particles are far and virtually isolated.  This
+persists regardless of how small I make the time step.  This suggests that the continuous time
+algorithm is not converging to the correct equations and there is bug.  In particular
+it is a bug associated to the coupling between one-jets and zero-jets.
+
+Dec 7
+  There is also a problem with the coupling of one-jets to each other when the zero-jet momentum is absent.  So there seems to be a general problem with the one-jet couplings.
+
+Dec 12
+    The Hamiltonian function appears fixed (it was occasionally negative before, now it is strictly positive as it should be). There is a new function which tests all the other functions and there computed derivatives by comparing the computed quantites with finite difference approximations.  It appears that there may be problems with the second derivatives of the kernel.
+
+Dec 14
+    Something is wrong with the calculation of the second order derivatives of Guassians.  Consider recoding this.
+
+Dec 14
+    The Guassians and there derivatives have been vetted.  However, there appears to be a bug in the calculation of D2K (although K and DK both work).
+
+Dec 14 22:58
+    The derivatives of Guassians and Kernel functions both work.
