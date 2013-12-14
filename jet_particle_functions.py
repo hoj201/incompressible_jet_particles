@@ -99,12 +99,7 @@ def ode_function( state , t ):
     dq = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
     xi = np.einsum('ijacb,jc->iab',DK,p) - np.einsum('ijacbd,jcd->iab',D2K,mu)
     chi = np.einsum('ijadbc,jd->iabc',D2K,p) - np.einsum('ijaebcd,jed->iabc',D3K,mu)
-    dp = - 0.5*np.einsum('ic,jb,ijcba->ia',p,p,DK)
-    -0.5*np.einsum('jc,ib,ijcba->ia',p,p,DK)
-    + np.einsum('ic,jbd,ijcbad->ia',p,mu,D2K)
-    - np.einsum('jc,ibd,ijcbad->ia',p,mu,D2K)
-    + 0.5*np.einsum('icd,jbe,ijcbeda->ia',mu,mu,D3K)
-    + 0.5*np.einsum('jcd,ibe,ijcbeda->ia',mu,mu,D3K)
+    dp = - 0.5*np.einsum('ic,jb,ijcba->ia',p,p,DK)-0.5*np.einsum('jc,ib,ijcba->ia',p,p,DK) + np.einsum('ic,jbd,ijcbad->ia',p,mu,D2K) - np.einsum('jc,ibd,ijcbad->ia',p,mu,D2K) + 0.5*np.einsum('icd,jbe,ijcbeda->ia',mu,mu,D3K) + 0.5*np.einsum('jcd,ibe,ijcbeda->ia',mu,mu,D3K)
     dmu = np.einsum('iac,ibc->iab',mu,xi) - np.einsum('icb,ica->iab',mu,xi)
     dstate = weinstein_darboux_to_state( dq , dp , dmu )
     return dstate
