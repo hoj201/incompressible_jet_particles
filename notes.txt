@@ -21,4 +21,6 @@ Dec 14 22:58
     The derivatives of Guassians and Kernel functions both work.
 
 Dec 15 18:59
-    The integrator seems to be working and all functions are computed accurately.
+    The integrator seems to be working and all functions are computed accurately. Therefore I have begun conducting numerical expirements.
+
+    head_on_collision : I sent two zero-jet particles at position (-2,0) and (2,0) heading towards each other with momenta (1,0) and (-1,0).  In finite time the particles get very close to touching (somewhere between 8 and 16 seconds) and the momenta goes to infinity.

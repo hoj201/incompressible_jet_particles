@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 DIM = 2
-N = 2
+N = 1
 SIGMA = 1.0
 
 def Hermite( k , x):
