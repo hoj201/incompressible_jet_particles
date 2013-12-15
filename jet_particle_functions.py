@@ -80,8 +80,17 @@ def derivatives_of_kernel( nodes , q ):
     G,DG,D2G,D3G = derivatives_of_Gaussians( nodes , q )
     K = np.einsum('ij,ijab->ijab',G,S)
     DK = np.einsum('ijc,ijab->ijabc',DG,S) + np.einsum('ij,ijabc->ijabc',G,DS)
-    D2K = np.einsum('ijcd,ijab->ijabcd',D2G,S) + np.einsum('ijc,ijabd->ijabcd',DG,DS)+ np.einsum('ijd,ijabc->ijabcd',DG,DS) + np.einsum('ij,abcd->ijabcd',G,D2S)
-    D3K = np.einsum('ijcde,ijab->ijabcde',D3G,S) + np.einsum('ijce,ijabd->ijabcde',D2G,DS)+ np.einsum('ijc,abde->ijabcde',DG,D2S) + np.einsum('ijed,ijabc->ijabcde',D2G,DS) + np.einsum('ijd,abce->ijabcde',DG,D2S) + np.einsum('ije,abcd->ijabcde',DG,D2S)
+    D2K = np.einsum('ijcd,ijab->ijabcd',D2G,S) \
+        + np.einsum('ijc,ijabd->ijabcd',DG,DS) \
+        + np.einsum('ijd,ijabc->ijabcd',DG,DS) \
+        + np.einsum('ij,abcd->ijabcd',G,D2S)
+    D3K = np.einsum('abcd,ije->ijabcde',D2S,DG) \
+        + np.einsum('abce,ijd->ijabcde',D2S,DG) \
+        + np.einsum('abde,ijc->ijabcde',D2S,DG) \
+        + np.einsum('ijabc,ijde->ijabcde',DS,D2G) \
+        + np.einsum('ijabd,ijce->ijabcde',DS,D2G) \
+        + np.einsum('ijabe,ijcd->ijabcde',DS,D2S) \
+        + np.einsum('ijab,ijcde->ijabcde',S,D3G)
     #EXAMPLE OF INDEX CONVENTION 'ijabc' refers to the c^th derivative of the ab^th entry of K(q_i - q_j)
     return K, DK, D2K, D3K
 
@@ -99,7 +108,10 @@ def ode_function( state , t ):
     dq = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
     xi = np.einsum('ijacb,jc->iab',DK,p) - np.einsum('ijacbd,jcd->iab',D2K,mu)
     chi = np.einsum('ijadbc,jd->iabc',D2K,p) - np.einsum('ijaebcd,jed->iabc',D3K,mu)
-    dp = - 0.5*np.einsum('ic,jb,ijcba->ia',p,p,DK)-0.5*np.einsum('jc,ib,ijcba->ia',p,p,DK) + np.einsum('ic,jbd,ijcbad->ia',p,mu,D2K) - np.einsum('jc,ibd,ijcbad->ia',p,mu,D2K) + 0.5*np.einsum('icd,jbe,ijcbeda->ia',mu,mu,D3K) + 0.5*np.einsum('jcd,ibe,ijcbeda->ia',mu,mu,D3K)
+    dp = - np.einsum('ib,jc,ijbca->ia',p,p,DK) \
+        + np.einsum('id,jbc,ijdbca->ia',p,mu,D2K) \
+        - np.einsum('jd,ibc,ijdbca->ia',p,mu,D2K) \
+        + np.einsum('icb,jed,ijceabd->ia',mu,mu,D3K)
     dmu = np.einsum('iac,ibc->iab',mu,xi) - np.einsum('icb,ica->iab',mu,xi)
     dstate = weinstein_darboux_to_state( dq , dp , dmu )
     return dstate
@@ -142,8 +154,10 @@ def test_functions( trials ):
     #checks that each function does what it is supposed to
     
     #testing derivatives of Gaussians
-    h = 10e-8
+    h = 10e-7
     q = SIGMA*np.random.randn(N,DIM)
+    p = SIGMA*np.random.randn(N,DIM)
+    mu = np.random.randn(N,DIM,DIM)
     G,DG,D2G,D3G = derivatives_of_Gaussians(q,q)
     q_a = np.copy(q)
     q_b = np.copy(q)
@@ -157,7 +171,7 @@ def test_functions( trials ):
             for j in range(0,N):
                 error = (G_a[i,j] - G[i,j])/h - DG[i,j,a]
                 error_max = np.maximum( np.absolute( error ) , error_max )
-            #print 'max error for DG was ' + str( error_max )
+            print 'max error for DG was ' + str( error_max )
             error_max = 0.
             for b in range(0,DIM):
                 q_b[i,b] = q[i,b] + h
@@ -165,7 +179,7 @@ def test_functions( trials ):
                 for j in range(0,N):
                     error = (DG_b[i,j,a] - DG[i,j,a])/h - D2G[i,j,a,b]
                     error_max = np.maximum( np.absolute( error ) , error_max )
-                #print 'max error for D2G was ' + str( error_max )
+                print 'max error for D2G was ' + str( error_max )
                 error_max = 0.
                 for c in range(0,DIM):
                     q_c[i,c] = q_c[i,c] + h
@@ -173,7 +187,7 @@ def test_functions( trials ):
                     for j in range(0,N):
                         error = (D2G_c[i,j,a,b] - D2G[i,j,a,b])/h - D3G[i,j,a,b,c]
                         error_max = np.maximum( np.absolute(error) , error_max )
-                    #print 'max error for D3G was ' + str( error_max )
+                    print 'max error for D3G was ' + str( error_max )
                     q_c[i,c] = q_c[i,c] - h
                 q_b[i,b] = q_b[i,b] - h
             q_a[i,a] = q_a[i,a] - h
@@ -194,6 +208,9 @@ def test_functions( trials ):
                     error_max = np.maximum( np.absolute(error) , error_max )
 
     print 'error_max for K = ' + str( error_max )
+    if (error_max > 100*h):
+        print 'WARNING:  COMPUTATION OF K APPEARS TO BE INACCURATE'
+
     error_max = 0.
     for i in range(0,N):
         for a in range(0,DIM):
@@ -205,6 +222,8 @@ def test_functions( trials ):
                 error_max = np.maximum(error, error_max)
             q_a[i,a] = q[i,a]
     print 'error_max for DK = ' + str( error_max )
+    if (error_max > 100*h):
+        print 'WARNING:  COMPUTATION OF DK APPEARS TO BE INACCURATE'
 
     error_max = 0.
     q_b = np.copy(q)
@@ -220,4 +239,63 @@ def test_functions( trials ):
                 q_b[i,b] = q[i,b]
 
     print 'error_max for D2K = ' + str( error_max )
+    if (error_max > 100*h):
+        print 'WARNING:  COMPUTATION OF D2K APPEARS TO BE INACCURATE'
+
+    error_max = 0.
+    q_c = np.copy(q)
+    for i in range(0,N):
+        for a in range(0,DIM):
+            for b in range(0,DIM):
+                for c in range(0,DIM):
+                    q_c[i,c] = q[i,c] + h
+                    K_c,DK_c,D2K_c,D3K_c = derivatives_of_kernel(q_c,q)
+                    for j in range(0,N):
+                        der = (D2K_c[i,j,:,:,a,b] - D2K[i,j,:,:,a,b] )/h
+                        error = np.linalg.norm( der - D3K[i,j,:,:,a,b,c] )
+                        error_max = np.maximum( error, error_max )
+                    q_c[i,c] = q[i,c]
+
+    print 'error_max for D3K = ' + str( error_max )
+
+    if (error_max > 100*h):
+        print 'WARNING:  COMPUTATION OF D3K APPEARS TO BE INACCURATE'
+
+    print 'TESTING SYMMETRIES'
+    print 'Is K symmetric with respect to ij?'
+    error_max = 0
+    for i in range(0,N):
+        for j in range(0,N):
+            error = np.linalg.norm( K[i,j,:,:] - K[j,i,:,:] )
+            error_max = np.maximum( error, error_max )
+    print 'max for K_ij - K_ji = ' + str( error_max )
+
+    print 'Is DK anti-symmetric with respect to ij?'
+    error_max = 0
+    for i in range(0,N):
+        for j in range(0,N):
+            for a in range(0,DIM):
+                error = np.linalg.norm( DK[i,j,:,:,a] + DK[j,i,:,:,a] )
+                error_max = np.maximum( error, error_max )
+    print 'max for DK_ij + DK_ji = ' + str( error_max )
+
+
+
+    s = weinstein_darboux_to_state( q , p , mu)
+    ds = ode_function( s , 0 )
+    dq,dp_coded,dmu = state_to_weinstein_darboux( ds ) 
+
+    print 'a test of the ode:'
+    print 'dp_coded =' + str(dp_coded)
+
+    Q = np.copy(q)
+    dp_estim = np.zeros([N,DIM])
+    for i in range(0,N):
+        for a in range(0,DIM):
+            Q[i,a] = q[i,a] + h
+            dp_estim[i,a] = - ( Hamiltonian(Q,p,mu) - Hamiltonian(q,p,mu) ) / h 
+            Q[i,a] = Q[i,a] - h
+    print 'dp_estim =' + str(dp_estim)
+    print 'dp_error =' + str(dp_estim - dp_coded)
+
     return 'what do you think?'
