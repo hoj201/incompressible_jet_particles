@@ -74,9 +74,16 @@ def derivatives_of_kernel( nodes , q ):
             r_sq[i,j] = np.dot(x[i,j] , x[i,j])
 
     delta = np.identity( DIM )
-    S = np.einsum('ija,ijb->ijab',x,x) / (SIGMA**2) + np.einsum('ij,ab->ijab',np.ones([N_nodes,N]) - r_sq/(SIGMA**2) , delta )
-    DS = ( np.einsum('ac,ijb->ijabc',delta,x) + np.einsum('ija,bc->ijabc',x,delta) - 2.*np.einsum('ijc,ab->ijabc',x,delta) ) / (SIGMA**2)
-    D2S = ( np.einsum('ac,bd->abcd',delta,delta) + np.einsum('ad,bc->abcd',delta,delta) - 2.*np.einsum('ab,cd->abcd',delta,delta) ) / (SIGMA**2)
+
+    S = np.einsum('ija,ijb->ijab',x,x) / (SIGMA**2) \
+        + np.einsum('ij,ab->ijab',np.ones([N_nodes,N]) - r_sq/(SIGMA**2) , delta )
+    DS = ( np.einsum('ac,ijb->ijabc',delta,x) \
+               + np.einsum('ija,bc->ijabc',x,delta) \
+               - 2.*np.einsum('ijc,ab->ijabc',x,delta) ) / (SIGMA**2)
+    D2S = ( np.einsum('ac,bd->abcd',delta,delta) \
+                + np.einsum('ad,bc->abcd',delta,delta) \
+                - 2.*np.einsum('ab,cd->abcd',delta,delta) ) / (SIGMA**2)
+
     G,DG,D2G,D3G = derivatives_of_Gaussians( nodes , q )
     K = np.einsum('ij,ijab->ijab',G,S)
     DK = np.einsum('ijc,ijab->ijabc',DG,S) + np.einsum('ij,ijabc->ijabc',G,DS)
@@ -85,11 +92,11 @@ def derivatives_of_kernel( nodes , q ):
         + np.einsum('ijd,ijabc->ijabcd',DG,DS) \
         + np.einsum('ij,abcd->ijabcd',G,D2S)
     D3K = np.einsum('abcd,ije->ijabcde',D2S,DG) \
-        + np.einsum('abce,ijd->ijabcde',D2S,DG) \
+        + np.einsum('abec,ijd->ijabcde',D2S,DG) \
         + np.einsum('abde,ijc->ijabcde',D2S,DG) \
         + np.einsum('ijabc,ijde->ijabcde',DS,D2G) \
-        + np.einsum('ijabd,ijce->ijabcde',DS,D2G) \
-        + np.einsum('ijabe,ijcd->ijabcde',DS,D2S) \
+        + np.einsum('ijabd,ijec->ijabcde',DS,D2G) \
+        + np.einsum('ijabe,ijcd->ijabcde',DS,D2G) \
         + np.einsum('ijab,ijcde->ijabcde',S,D3G)
     #EXAMPLE OF INDEX CONVENTION 'ijabc' refers to the c^th derivative of the ab^th entry of K(q_i - q_j)
     return K, DK, D2K, D3K
