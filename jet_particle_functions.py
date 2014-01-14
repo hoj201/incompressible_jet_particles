@@ -1,5 +1,4 @@
 #from scipy.spatial.distance import pdist , squareform
-import matplotlib.pyplot as plt
 import numpy as np
 
 DIM = 2
@@ -136,26 +135,6 @@ def weinstein_darboux_to_state( q , p , mu ):
     state[(2*N*DIM):(2*N*DIM+N*DIM*DIM)] = np.reshape( mu , N*DIM*DIM)
     return state
 
-def display_velocity_field( q , p ,mu ):
- W = 5*SIGMA
- res = 30
- N_nodes = res**DIM
- store = np.outer( np.linspace(-W,W , res), np.ones(res) )
- nodes = np.zeros( [N_nodes , DIM] )
- nodes[:,0] = np.reshape( store , N_nodes )
- nodes[:,1] = np.reshape( store.T , N_nodes )
- K,DK,D2K,D3K = derivatives_of_kernel( nodes , q )
- vel_field = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
- U = vel_field[:,0]
- V = vel_field[:,1]
-
- plt.figure()
- plt.quiver( nodes[:,0] , nodes[:,1] , U , V )
- plt.plot(q[:,0],q[:,1],'ro')
- for i in range(0,N):
-     plt.arrow(q[i,0], q[i,1], 0.2*p[i,0], 0.2*p[i,1], head_width=0.05, head_length=0.1, fc='b', ec='b')
- plt.axis([- W, W,- W, W ])
- return plt.gcf()
 
 def test_functions( trials ):
     #checks that each function does what it is supposed to
