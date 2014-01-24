@@ -3,7 +3,7 @@ import numpy as np
 
 DIM = 2
 N = 1
-SIGMA = 1.0
+SIGMA = 0.5
 
 def Hermite( k , x):
     #Calculate the 'statisticians' Hermite polynomials
