@@ -18,7 +18,6 @@ def display_velocity( q , p ,mu ):
  vel_field = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
  U = vel_field[:,0]
  V = vel_field[:,1]
-
  plt.figure()
  plt.quiver( nodes[:,0] , nodes[:,1] , U , V )
  plt.plot(q[:,0],q[:,1],'ro')
@@ -41,12 +40,11 @@ def display_streamlines( q , p ,mu ):
  V = vel_field[:,1]
  U2 = U.reshape(res,res)
  V2 = V.reshape(res,res)
- X = np.reshape( nodes[:,0] , [res,res])
- Y = np.reshape( nodes[:,1] , [res,res])
+ Y,X = np.mgrid[-W:W:30j, -W:W:30j]
  speed = np.sqrt(U2*U2 + V2*V2)
  lw = 5*speed / speed.max()
- #plt.figure()
- plt.streamplot( X , Y , U2 , V2  )
+ plt.figure()
+ plt.streamplot( X , Y , U2.T , V2.T , color='k', linewidth=lw )
  plt.plot(q[:,0],q[:,1],'ro')
  for i in range(0,N):
      plt.arrow(q[i,0], q[i,1], 0.2*p[i,0], 0.2*p[i,1], head_width=0.05, head_length=0.1, fc='b', ec='b')
