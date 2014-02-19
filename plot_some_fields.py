@@ -7,9 +7,10 @@ import jet_particle_functions as jpf
 state = np.load('./movies/dynamic_one_jet.npy')
 time = np.load('./movies/dynamic_one_jet_time.npy')
 
-step = 60
+step = 0
 q,p,mu = jpf.state_to_weinstein_darboux(state[step])
 print 'time = ' + str(time[step])
+
 gf.display_velocity(q,p,mu)
 plt.axis('equal')
 plt.show()
