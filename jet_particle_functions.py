@@ -47,8 +47,6 @@ def scalar_F2( rho ):
             out_3 = out_3 + 0.5*(-1)**(k+1) * (1./(k+4) - 1./( (k+4)*(k+5) ) ) * rho**k / math.factorial(k)
     return out_0 , out_1 , out_2, out_3
 
-
-
 def Hermite( k , x):
     #Calculate the 'statisticians' Hermite polynomials
     if k==0:
@@ -96,32 +94,60 @@ def derivatives_of_kernel( nodes , q ):
         for j in range(0,N):
             x[i,j,:] = nodes[i,:] - q[j,:]
             r_sq[i,j] = np.dot(x[i,j] , x[i,j])
-            rho = r_sq / 2.
+    rho = r_sq / 2.
     delta = np.identity( DIM )
-    
-    S = np.einsum('ija,ijb->ijab',x,x) / (SIGMA**2) \
-        + np.einsum('ij,ab->ijab',np.ones([N_nodes,N]) - r_sq/(SIGMA**2) , delta )
-    DS = ( np.einsum('ac,ijb->ijabc',delta,x) \
-               + np.einsum('ija,bc->ijabc',x,delta) \
-               - 2.*np.einsum('ijc,ab->ijabc',x,delta) ) / (SIGMA**2)
-    D2S = ( np.einsum('ac,bd->abcd',delta,delta) \
-                + np.einsum('ad,bc->abcd',delta,delta) \
-                - 2.*np.einsum('ab,cd->abcd',delta,delta) ) / (SIGMA**2)
+    F1_func = np.vectorize( scalar_F1 )
+    F2_func = np.vectorize( scalar_F2 )
+    F1,DF1,D2F1,D3F1 = F1_func( rho )
+    F2,DF2,D2F2,D3F2 = F2_func( rho )
+    K = np.zeros( [N_nodes, N , DIM , DIM ] )
+    DK = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
+    D2K = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
+    D3K = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
+    xx = np.einsum('ija,ijb->ijab',x,x)
+    K = np.einsum( 'ij,ab->ijab', F1, delta ) + np.einsum('ij,ijab->ijab',F2,xx)
+    DK = np.einsum('ij,ijc,ab->ijabc',DF1,x,delta) \
+         + np.einsum('ij,ija,ijb,ijc->ijabc',DF2,x,x,x) \
+         + np.einsum('ij,ac,ijb->ijabc',F2,delta,x) \
+         + np.einsum('ij,ija,bc->ijabc',F2,x,delta)
 
-    G,DG,D2G,D3G = derivatives_of_Gaussians( nodes , q )
-    K = np.einsum('ij,ijab->ijab',G,S)
-    DK = np.einsum('ijc,ijab->ijabc',DG,S) + np.einsum('ij,ijabc->ijabc',G,DS)
-    D2K = np.einsum('ijcd,ijab->ijabcd',D2G,S) \
-        + np.einsum('ijc,ijabd->ijabcd',DG,DS) \
-        + np.einsum('ijd,ijabc->ijabcd',DG,DS) \
-        + np.einsum('ij,abcd->ijabcd',G,D2S)
-    D3K = np.einsum('abcd,ije->ijabcde',D2S,DG) \
-        + np.einsum('abec,ijd->ijabcde',D2S,DG) \
-        + np.einsum('abde,ijc->ijabcde',D2S,DG) \
-        + np.einsum('ijabc,ijde->ijabcde',DS,D2G) \
-        + np.einsum('ijabd,ijec->ijabcde',DS,D2G) \
-        + np.einsum('ijabe,ijcd->ijabcde',DS,D2G) \
-        + np.einsum('ijab,ijcde->ijabcde',S,D3G)
+    D2K = np.einsum('ij,ijd,ijc,ab->ijabcd',D2F1,x,x,delta) \
+          + np.einsum('ij,cd,ab->ijabcd',DF1,delta,delta) \
+          + np.einsum('ij,ijd,ijc,ija,ijb->ijabcd',D2F2,x,x,x,x) \
+          + np.einsum('ij,cd,ija,ijb->ijabcd',DF2,delta,x,x) \
+          + np.einsum('ij,ijc,ad,ijb->ijabcd',DF2,x,delta,x) \
+          + np.einsum('ij,ijc,ija,bd->ijabcd',DF2,x,x,delta) \
+          + np.einsum('ij,ijd,ac,ijb->ijabcd',DF2,x,delta,x) \
+          + np.einsum('ij,ijd,ija,bc->ijabcd',DF2,x,x,delta) \
+          + np.einsum('ij,ac,bd->ijabcd',F2,delta,delta) \
+          + np.einsum('ij,ad,bc->ijabcd',F2,delta,delta)
+    D3K = np.einsum('ij,ije,ijd,ijc,ab->ijabcde',D3F1,x,x,x,delta) \
+          + np.einsum('ij,ijc,de,ab->ijabcde',D2F1,x,delta,delta) \
+          + np.einsum('ij,ijd,ec,ab->ijabcde',D2F1,x,delta,delta) \
+          + np.einsum('ij,ije,cd,ab->ijabcde',D2F1,x,delta,delta) \
+          + np.einsum('ij,ije,ijd,ijc,ija,ijb->ijabcde',D3F2,x,x,x,x,x) \
+          + np.einsum('ij,ed,ijc,ija,ijb->ijabcde',D2F2,delta,x,x,x) \
+          + np.einsum('ij,ec,ijd,ija,ijb->ijabcde',D2F2,delta,x,x,x) \
+          + np.einsum('ij,cd,ije,ija,ijb->ijabcde',D2F2,delta,x,x,x) \
+          + np.einsum('ij,ijd,ijc,ae,ijb->ijabcde',D2F2,x,x,delta,x) \
+          + np.einsum('ij,ije,ijc,ad,ijb->ijabcde',D2F2,x,x,delta,x) \
+          + np.einsum('ij,ije,ijd,ac,ijb->ijabcde',D2F2,x,x,delta,x) \
+          + np.einsum('ij,ijd,ijc,ija,be->ijabcde',D2F2,x,x,x,delta) \
+          + np.einsum('ij,ijc,ije,ija,bd->ijabcde',D2F2,x,x,x,delta) \
+          + np.einsum('ij,ije,ijd,ija,bc->ijabcde',D2F2,x,x,x,delta) \
+          + np.einsum('ij,ijb,cd,ea->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijb,ce,da->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijb,de,ac->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ija,dc,eb->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ija,ce,db->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ija,ed,bc->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijc,ad,be->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijc,ea,db->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijd,ac,be->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ijd,ae,cb->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ije,ac,bd->ijabcde',DF2,x,delta,delta) \
+          + np.einsum('ij,ije,ad,bc->ijabcde',DF2,x,delta,delta)
+
     #EXAMPLE OF INDEX CONVENTION 'ijabc' refers to the c^th derivative of the ab^th entry of K(q_i - q_j)
     return K, DK, D2K, D3K
 
