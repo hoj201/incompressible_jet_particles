@@ -3,7 +3,51 @@ import numpy as np
 
 DIM = 2
 N = 1
-SIGMA = 0.5
+SIGMA = 1.0
+
+import math
+
+def scalar_F1( rho ):
+    rho_is_large = rho > 0.5
+    out_0 = 0.
+    out_1 = 0.
+    out_2 = 0.
+    out_3 = 0.
+    if rho_is_large:
+        g = np.exp(-rho)
+        out_0 = g - 0.5*(1. - g)/rho
+        out_1 = -g + 0.5*(1. - g - rho*g )/ (rho**2)
+        out_2 = g - (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
+        out_3 = -g + 3.*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
+    else:
+        for k in range(0,5):
+            out_0 = out_0 + (-1)**k * (1. - 1./(2*(k+1) ) ) * rho**k / math.factorial(k)
+            out_1 = out_1 + (-1)**(k+1) * (1. - 1./(2*(k+2) ) ) * rho**k / math.factorial(k)
+            out_2 = out_2 + (-1)**(k) * (1. - 1./(2*(k+3) ) ) * rho**k / math.factorial(k)
+            out_3 = out_3 + (-1)**(k+1) * (1. - 1./(2*(k+4) ) ) * rho**k / math.factorial(k)
+    return out_0, out_1, out_2, out_3
+
+def scalar_F2( rho ):
+    rho_is_large = rho > 0.5
+    out_0 = 0.
+    out_1 = 0.
+    out_2 = 0.
+    out_3 = 0.
+    if rho_is_large:
+        g = np.exp(-rho)
+        out_0 = 0.5*rho**(-2) * ( 1. - g - rho*g)
+        out_1 = - rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
+        out_2 = 3*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
+        out_3 = -12.*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
+    else:
+        for k in range(0,5):
+            out_0 = out_0 + 0.5*(-1)**k * ( 1./(k+1) - 1./( (k+1)*(k+2) ) ) * rho**k / math.factorial(k)
+            out_1 = out_1 + 0.5*(-1)**(k+1) * (1./(k+2) - 1./( (k+2)*(k+3) ) ) * rho**k / math.factorial(k)
+            out_2 = out_2 + 0.5*(-1)**(k) * (1./(k+3) - 1./( (k+3)*(k+4) ) ) * rho**k / math.factorial(k)
+            out_3 = out_3 + 0.5*(-1)**(k+1) * (1./(k+4) - 1./( (k+4)*(k+5) ) ) * rho**k / math.factorial(k)
+    return out_0 , out_1 , out_2, out_3
+
+
 
 def Hermite( k , x):
     #Calculate the 'statisticians' Hermite polynomials
@@ -21,7 +65,7 @@ def Hermite( k , x):
         return x**5 - 10*x**3 + 15*x
     else:
         print 'error in Hermite function, unknown formula for k=' + str(k)
-
+        
 def derivatives_of_Gaussians( nodes , q ):
     #given x_i , x_j returns G(x_ij) for x_ij = x_i - x_j
     N_nodes = nodes.shape[0]
@@ -40,25 +84,6 @@ def derivatives_of_Gaussians( nodes , q ):
     DG = np.einsum('ija,ij->ija',-dx/(SIGMA**2) , G )
     D2G = (1./SIGMA**2)*(np.einsum('ab,ij->ijab',-delta , G ) - np.einsum('ija,ijb->ijab',dx , DG ) )
     D3G = (1./SIGMA**2)*( np.einsum('ab,ijc->ijabc',-delta,DG) - np.einsum('ac,ijb->ijabc',delta,DG) - np.einsum('ija,ijcb->ijabc',dx,D2G) )
-
-#    for a in range(0,DIM):
-#        alpha = np.zeros(DIM)
-#        alpha[a] = 1
-#        DG[:,:,a] = (-1./SIGMA) * G * Hermite( 1 , dx[:,:,a] )
-#        for b in range(0,DIM):
-#            alpha[b] = alpha[b] + 1
-#            store = np.ones([N_nodes,N])
-#            for i in range(0,DIM):
-#                store = store*Hermite( alpha[i] , dx[:,:,i] )
-#            D2G[:,:,a,b] = (-1./SIGMA)**2 * G * store
-#            for c in range(0,DIM):
-#                alpha[c] = alpha[c] + 1
-#                store = np.ones([N_nodes,N])
-#                for i in range(0,DIM):
-#                    store = store*Hermite(alpha[i] , dx[:,:,i])
-#                D3G[:,:,a,b,c] = (-1./SIGMA)**3 * G * store
-#                alpha[c] = alpha[c] - 1
-#            alpha[b] = alpha[b] - 1
     return G , DG, D2G, D3G
 
 def derivatives_of_kernel( nodes , q ):
@@ -71,9 +96,9 @@ def derivatives_of_kernel( nodes , q ):
         for j in range(0,N):
             x[i,j,:] = nodes[i,:] - q[j,:]
             r_sq[i,j] = np.dot(x[i,j] , x[i,j])
-
+            rho = r_sq / 2.
     delta = np.identity( DIM )
-
+    
     S = np.einsum('ija,ijb->ijab',x,x) / (SIGMA**2) \
         + np.einsum('ij,ab->ijab',np.ones([N_nodes,N]) - r_sq/(SIGMA**2) , delta )
     DS = ( np.einsum('ac,ijb->ijabc',delta,x) \
