@@ -19,7 +19,7 @@ def display_velocity( q , p ,mu ):
  U = vel_field[:,0]
  V = vel_field[:,1]
  plt.figure()
- plt.quiver( nodes[:,0] , nodes[:,1] , U , V , scale=20 )
+ plt.quiver( nodes[:,0] , nodes[:,1] , U , V , scale=10 )
  plt.plot(q[:,0],q[:,1],'ro')
  for i in range(0,N):
      plt.arrow(q[i,0], q[i,1], p[i,0], p[i,1], head_width=0.1, head_length=0.2, lw = 4.0, fc='b', ec='b')
@@ -71,7 +71,7 @@ def display_vorticity( q , p ,mu , quiver = None ):
  Y = np.reshape( nodes[:,1] , [res,res] )
  plt.figure()
  plt.contourf( X,Y, Z , 10, cmap=plt.cm.rainbow )
- plt.contour( X,Y, Z , 10, color='k' )
+# plt.contour( X,Y, Z , 10, color='k' )
  plt.plot(q[:,0],q[:,1],'wo')
  for i in range(0,N):
      plt.arrow(q[i,0], q[i,1], 0.2*p[i,0], 0.2*p[i,1], head_width=0.05, head_length=0.1, fc='b', ec='b')
