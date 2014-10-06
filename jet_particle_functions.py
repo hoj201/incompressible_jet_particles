@@ -2,7 +2,7 @@
 import numpy as np
 
 DIM = 2
-N = 1
+N = 2
 SIGMA = 1.0
 
 import math
