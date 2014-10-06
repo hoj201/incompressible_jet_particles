@@ -1,0 +1,4 @@
+/movie_frames
+*.pyc
+*_data.npy
+particle_motion.mp4
