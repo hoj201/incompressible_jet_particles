@@ -1,0 +1,45 @@
+near_merge
+
+N = 2
+SIGMA = 1.0
+d = 1.13*SIGMA
+r0 = 3.0
+p0 = -1.5
+omega = 0.0
+
+just_merge
+
+d = 1.12*SIGMA
+
+just_merge-1jetlets
+
+d = 1.2*SIGMA
+omega = 0.1
+
+near_merge-1jetlets
+
+d = 1.25*SIGMA
+
+With 3rd particle, changed: N = 3
+
+just_merge-3rd-0jetlet
+
+d = 1.1*SIGMA
+omega = 0.0
+q[2] = [ -2, -3.5 ]
+p[2] = [ 0.4, 0.0 ]
+
+near_merge-3rd-0jetlet
+
+as above, but d = 1.12*SIGMA
+
+just_merge-3rd-1jetlet
+
+d = 1.0*SIGMA
+mu[2] = 0.2*spin
+
+near_merge-3rd-1jetlet
+
+d = 1.04*SIGMA
+mu[2] = 0.2*spin
+
