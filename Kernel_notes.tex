@@ -1,0 +1,345 @@
+\documentclass[12pt]{amsart}
+\usepackage{amssymb}
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+\usepackage{tensor}
+\usepackage{todonotes}
+\geometry{a4paper} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+\usepackage{graphicx}
+\usepackage{hyperref}
+% See the ``Article customise'' template for come common customisations
+
+% MATH OPERATORS
+\DeclareMathOperator{\Diff}{Diff}
+\DeclareMathOperator{\SE}{SE}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\ad}{ad}
+\DeclareMathOperator{\Ad}{Ad}
+
+% NEW COMMANDS
+\newtheorem{thm}{Theorem}
+\newtheorem{prop}{Proposition}
+\newtheorem{defn}{Definition}
+\newcommand{\pder}[2]{\ensuremath{\frac{\partial #1}{\partial #2} } }
+\newcommand{\J}{\ensuremath{\bf J}}
+
+%TITLE INFO
+\title{Computation of derivatives of our kernel}
+\author{Henry O. Jacobs}
+
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+\maketitle
+\section{The incompressible Guassian kernel}
+The matrix kernel
+\begin{align}
+\begin{split}  K^{\alpha \beta}(x) =& \left( e^{-r^2/2\sigma^2} - \frac{\sigma^2}{r^2}
+    \left[ 1 - e^{-r^2/ 2\sigma^2} \right] \right) \delta^{\alpha \beta} \\
+  &+ \left( \frac{2 \sigma^2}{r^2} \left[ 1 - e^{r^2 / 2 \sigma^2} \right] - e^{-r^2 / 2 \sigma^2 } \right) \frac{x^\alpha x^\beta }{r^2}
+  \end{split} \label{eq:kernel}
+\end{align}
+yields the incompressible component of the Guassian kernel
+\cite{MicheliGlaunes2013}.\footnote{This is identical to the kernel in David's notes upon substituting $\sigma^2$ with $\frac{1}{2} \sigma^2$.
+The justification for this substitution is so that $\sigma$ is the variance of a Guassian}
+Throughout the note we will be using greek indices to indicate tensor
+components in $\mathbb{R}^n$ where $n = 2,3$.
+We may view this kernel as the matrix-valued Green's function
+corresponding to the differential operator $Q_{\rm op} = \lim_{k \to
+  \infty} \left( 1 - \frac{\sigma}{k}\Delta \right)^k$ restricted to
+  $\mathfrak{X}_{\rm div}( \mathbb{R}^n)$
+
+\section{Computing the derivative of the kernel}
+\label{sec:computing_derivatives}
+Consider the kernel $K$ given in equation \eqref{eq:kernel}.  We can write $K$ as a sum of two terms, one proportional to the identity matrix and another proportional to the outer product $x \otimes x$.  We may consider a change of coordinates $y = x /\sigma$.  In these new coordinates the $\sigma$'s cancel out and so without loss of generality we may set $\sigma = 1$.  Upon setting $\sigma = 1$, these coefficents can be written solely as functions of $\rho = r^2/2 = \| x \|^2 / 2$.  That is to say $K(x) = F_1(\rho) \mathbb{I} + F_2(\rho) x \otimes x$ where $F_1$ and $F_2$ are the scalar functions
+\begin{align*}
+	F_1(\rho) =&  e^{-\rho} - \frac{1}{2} \rho^{-1} \left( 1 - e^{-\rho} \right) \\
+        F_2(\rho) =& \frac{1}{2} \rho^{-2} \left( 1 - e^{-\rho} - \rho e^{-\rho} \right).
+\end{align*}
+Each of these functions contain removable singularities as $r=0$ and are globally analytic on $\mathbb{R}^n$.  This may be proven by writing the exponentail functions as power series and deriving the Taylor expansions explicitly.  In particular, we find
+\begin{align*}
+  F_1(\rho) =& \sum_{k=0}^{\infty} (-1)^k \left( 1 - \frac{1}{2(k+1)} \right) \frac{\rho^k}{k!} \\
+  F_2(\rho) =& \frac{1}{2} \sum_{k=0}^{\infty} (-1)^{k} \left( \frac{1}{k+1} - \frac{1}{(k+2)(k+1)} \right) \frac{\rho^k}{k!}.
+\end{align*}
+These Taylor expansions could be useful with respect to numerical considerations when $0 \leq \rho \ll 1$.
+
+\subsection{First derivatives}
+Upon noting that $\partial_\alpha( \rho ) = x^\alpha$ we see that
+\begin{align*}
+  \partial_\gamma K^{\alpha \beta}(x) = F_1'(\rho) x^\gamma \delta^{\alpha \beta} + F'_2(\rho) x^\gamma x^\alpha x^\beta + F_2(\rho) \left( \delta_\gamma^\alpha x^\beta + x^\alpha \delta_\gamma^\beta \right)
+\end{align*}
+
+Where $F'_1$ and $F'_2$ are
+\begin{align*}
+  F_1'(\rho) =& - e^{-\rho} + \frac{1}{2} \rho^{-2} ( 1 - e^{-\rho} - \rho e^{-\rho})\\
+  =& \sum_{k=0}^{\infty} (-1)^{k+1} \left( 1 - \frac{1}{2(k+2)} \right) \frac{\rho^k}{k!} \\
+  F_2'(\rho) =& - \rho^{-3} \left( 1 - e^{-\rho} - \rho e^{-\rho} - \frac{\rho^2}{2} e^{-\rho} \right) \\
+  =& \frac{1}{2} \sum_{k=0}^{\infty} (-1)^{k+1} \left( \frac{1}{k+2} - \frac{1}{(k+2)(k+3)} \right) \frac{\rho^k}{k!}
+\end{align*}
+
+\subsection{Second derivatives}
+We find
+\begin{align*}
+  \partial_{\delta\gamma}K^{\alpha\beta}(x) =& F''_1(\rho) x^\delta x^\gamma \delta^{\alpha\beta} + F'_1(\rho) \delta_{\delta\gamma} \delta^{\alpha\beta} + F''_2(\rho) x^\delta x^\gamma x^\alpha x^\beta \\
+  &+ F'_2(\rho) \left( \delta_{\delta\gamma} x^\alpha x^\beta
+    + x^\gamma \delta^\alpha_\gamma x^\beta 
+    + x^\gamma x^\alpha \delta_\delta^\beta
+    + x^\delta \delta_\gamma^\alpha x^\beta 
+    + x^\delta x^\alpha \delta_\gamma^\beta \right) \\
+  &+ F_2(\rho) \left( \delta_\gamma^\alpha \delta_\delta^\beta + \delta_\delta^\alpha \delta_\gamma^\beta \right)
+\end{align*}
+Where $F''_1$ and $F''_2$ are
+\begin{align*}
+  F_1''(\rho) =& e^{-\rho} - \rho^{-3} \left( 1 - e^{-\rho} - \rho e^{-\rho} - \frac{1}{2} \rho^2 e^{-\rho} \right)\\
+  =& \sum_{k=0}^{\infty} (-1)^k \left( 1 - \frac{1}{2(k+3)} \right) \frac{\rho^k}{k!} \\
+  F_2''(\rho) =& 3 \rho^{-4} \left( 1 - e^{-\rho} - \rho e^{-\rho} - \frac{\rho^2}{2} e^{-\rho}  - \frac{\rho^3}{6}e^{-\rho} \right) \\
+  =& \frac{1}{2} \sum_{k=0}^{\infty} (-1)^{k} \left( \frac{1}{k+3} - \frac{1}{(k+3)(k+4)} \right) \frac{\rho^k}{k!}
+\end{align*}
+
+\subsection{Third derivatives}
+We find
+\begin{align*}
+  \partial_{\epsilon\delta\gamma}K^{\alpha\beta}(x) =& F_1'''(\rho) x_\epsilon x_\delta x_\gamma \delta^{\alpha\beta} 
+  + F_1''(\rho) \left( x_\gamma \delta_{\delta\epsilon} \delta^{\alpha\beta} + x_\delta \delta_{\epsilon\gamma}\delta^{\alpha\beta} + x_\epsilon \delta_{\delta\gamma}\delta^{\alpha\beta} \right) \\
+  &+ F_2'''(\rho) x_\epsilon x_\delta x_\gamma x^\alpha x^\beta 
+  + F_2''(\rho) \left( \delta_{\epsilon\delta} x_\gamma x^\alpha x^\beta 
+    + \delta_{\epsilon\gamma} x_\delta x^\alpha x^\beta 
+    + \delta_{\delta\gamma} x_\epsilon x^\alpha x^\beta \right) \\
+  &+ F_2''(\rho) \left( x_\delta x_\gamma \delta_{\epsilon}^\alpha x^\beta
+    + x_\epsilon x_\gamma \delta_{\delta}^\alpha x^\beta
+    + x_\epsilon x_\delta x^\beta \delta_\gamma^\alpha \right) \\
+  &+ F_2''(\rho) \left( x_\delta x_\gamma x^\alpha \delta_\epsilon^\beta
+    + x_\gamma x_\epsilon x^\alpha \delta_\delta^\beta 
+    + x_\epsilon x_\delta x^\alpha \delta_\gamma^\beta \right) \\
+  &+ F_2'(\rho) x^\beta \left( \delta_{\delta\gamma} \delta_\epsilon^\alpha 
+    + \delta_{\epsilon\gamma} \delta_\delta^\alpha
+    + \delta_{\epsilon\delta} \delta_\gamma^\alpha \right) \\
+  &+ F_2'(\rho) x^\alpha \left( \delta_{\delta\gamma} \delta_\epsilon^\beta
+    + \delta_{\epsilon\gamma} \delta_\delta^\beta 
+    + \delta_{\epsilon\delta}\delta_\gamma^\beta\right) \\
+  &+ F_2'(\rho) x^\gamma \left( \delta_\delta^\alpha \delta_\epsilon^\beta
+    + \delta_\epsilon^\alpha \delta_\delta^\beta \right) \\
+  &+ F_2'(\rho) x^\delta \left( \delta_\gamma^\alpha \delta_\epsilon^\beta 
+    + \delta_\epsilon^\alpha \delta_\gamma^\beta \right) \\
+  &+ F_2'(\rho) x^\epsilon \left( \delta_\gamma^\alpha \delta_\delta^\beta + \delta_\delta^\alpha \delta_\gamma^\beta \right)
+\end{align*}
+
+Where $F'''_1$ and $F'''_2$ are
+\begin{align*}
+  F_1'''(\rho) =& -e^{-\rho} + 3 \rho^{-4} \left( 1 - e^{-\rho} - \rho e^{-\rho} - \frac{1}{2} \rho^2 e^{-\rho} - \frac{1}{6} \rho^3 e^{-\rho} \right)\\
+  =& \sum_{k=0}^{\infty} (-1)^{k+1} \left( 1 - \frac{1}{2(k+4)} \right) \frac{\rho^k}{k!} \\
+  F_2'''(\rho) =& -12 \rho^{-5} \left( 1 - e^{-\rho} - \rho e^{-\rho} - \frac{\rho^2}{2} e^{-\rho} - \frac{\rho^3}{6} e^{-\rho} - \frac{\rho^4}{24} e^{-\rho} \right) \\
+  =& \frac{1}{2} \sum_{k=0}^{\infty} (-1)^{k+1} \left( \frac{1}{k+4} - \frac{1}{(k+4)(k+5)} \right) \frac{\rho^k}{k!}
+\end{align*}
+
+
+
+\bibliographystyle{amsalpha}
+\bibliography{hoj_2013}
+
+\end{document}
+
+
+
+
+
+
+%  EXPLANATION OF KERNELS
+  Let $\mathcal{L}: \mathfrak{X}(\mathbb{R}^2) \to \mathfrak{X}(\mathbb{R}^2)^*$ be invariant under $\SE(2) \subset \Diff(\mathbb{R}^2)$.  In other words
+\[
+  \langle \mathcal{L}(u) , z_*v \rangle = \langle \mathcal{L}(u) , v \rangle \qquad \forall z \in \SE(2) \text{ and } u,v \in \mathfrak{X}(\mathbb{R}^2) 
+\]
+where $z_*u = Tz \cdot u \circ z^{-1}$ is the push-forward of $u$ by $z$.
+  Moreover, if the map $u,v \in \mathfrak{X}(\mathbb{R}^2) \mapsto \langle \mathcal{L}(u) , v \rangle $ is a (weakly) positive definite quadratic form, then there exists functions $k^\parallel, k^\perp : \mathbb{R}^2 \to \mathbb{R}$ such that the matrix valued function
+  \[
+  	K(x) = k^\parallel( \| x \| ) \frac{x x^T}{ \| x \|^2 } + k^\perp( \| x \| ) \left( 1 - \frac{ x x^T}{\| x\|} \right)
+\]
+serves as a matrix valued kernel for $\mathcal{L}$ in the sense that for any $\vec{p} \in \mathbb{R}^2$ we have
+\[
+	\langle \mathcal{L} ( K \cdot \vec{p} ) , u \rangle = \langle \vec{p} ,  u(0) \rangle.
+\]
+The $\SE(2)$ invariance of $\mathcal{L}$ allows us to rotate and translate the vector field $K \cdot \vec{p}$ so that for example
+\[
+	\langle \mathcal{L}( z_*( K \vec{p}) , u \rangle = \langle \vec{p} , z^*u( 0 ) \rangle  = \langle \vec{p} , Tz^{-1} \cdot u(z(0) ) \rangle = \langle T^{\ast}z^{-1} \vec{p} , u(z(0) ) \rangle.
+\]
+This construction is courtesy of \cite{MicheliGlaunes2013}.
+
+  Consider the Lagrangian $\ell : \mathfrak{X}(\mathbb{R}^2) \to \mathbb{R}$ given by
+\[
+	\ell( u ) = \frac{1}{2} \langle \mathcal{L}(u) , u \rangle
+\]
+Moreover, if $\mathbb{P} : \mathfrak{X}(\mathbb{R}^2) \to \mathfrak{X}_{\rm div}( \mathbb{R}^2)$ is the orthogonal projection onto divergence free vector fields (via Hodge-decomposition) and $\langle \mathcal{L} ( \mathbb{P} (u) ) , v \rangle = \langle \mathfrak{L}( u ) , \mathbb{P}(v) \rangle$ then the restriction $\left. \mathcal{L} \right|_{\mathfrak{X}_{\rm div}(\mathbb{R}^2)}$ induces an inner-product on $\mathfrak{X}_{\rm div}(\mathbb{R}^2)$.  Moreover, we have the identity
+\[
+	\langle \mathcal{L}( \mathbb{P}( K \cdot \vec{p} ) ) , w \rangle = \langle \vec{p} , w(0) \rangle 
+\]
+for all $w \in \mathfrak{X}_{\rm div}(\mathbb{R}^2)$.  Therefore $\mathbb{P}( K \cdot \vec{p} ) \in \mathfrak{X}_{\rm div}( \mathbb{R}^2)$ is a useful vector field to keep in mind.
+
+%%%%  OLD NOTES ON ONE JETS AS COSETS
+  Zero-jet particles are just normal particles.  This is what we shall see
+  in this section. Let's begin with the definition of a zero-jet.  As
+  a warning to the reader, the following definition is the most abstract
+  component of this section.  You might need to read it slowly and carefully.
+  \begin{defn}[0-jets]
+    \label{defn:0-jets}
+    Let $z_1,\dots,z_N \in \mathbb{R}^d$ be distinct points and define
+    the group
+    \begin{align*}
+      G_z^{(0)} := \{ \psi \in \Diff(\mathbb{R}^d) \mid \psi(z_i ) =
+      z_i \text{ for } i = 1,\dots,N \}.
+    \end{align*}
+    Let $j^{(0)}_z : \Diff( \mathbb{R}^d) \to \Diff(
+      \mathbb{R}^d) / G_z^{(0)} $ be the quotient map induced by the
+    action of right multiplicaiton of $G_z^{(0)}$ on $\Diff(\mathbb{R}^d)$.
+    Given a $\varphi \in \Diff(\mathbb{R}^d)$ we call $j^{(0)}_z(
+    \varphi)$ the $0$-jet of $\varphi$ at $z_1,\dots,z_N$.
+    Finally, the group $\Diff(\mathbb{R}^d)$ acts naturally on the
+    space of $0$-jets
+    $\Diff(\mathbb{R}^d) / G_z^{(0)}$ by the left action, $\varphi
+    \cdot j^{(0)}_z( \psi) := j_z^{(0)}( \varphi \circ \psi)$. 
+  \end{defn}
+  Let us now break down the abstraction with the following
+  proposition.
+  \begin{prop}
+    Let $G_z^{(0)}$ be as in definition \ref{defn:0-jets}.
+    The quotient space $\Diff(\mathbb{R}^d) / G^{(0)}_z$ is
+    identical to the space
+    \begin{align*}
+      Q^{(0)} := \{ (q_1 , \dots , q_N) \in (\mathbb{R}^d)^N \mid q_i \neq
+      q_j \text{ for } i \neq j \}.
+    \end{align*}
+    Under this identification, the quotient map $j^{(0)}_z$
+    is given by 
+    \begin{align*}
+      j^{(0)}_z( \varphi ) = (\varphi(z_1) , \dots,
+      \varphi(z_N) ) \in Q^{(0)}.
+    \end{align*}
+    Finally, the left action of
+    $\varphi \in \Diff(\mathbb{R}^d)$ on $Q^{(0)}$ is
+    \begin{align*}
+      \varphi \cdot
+      (q_1,\dots,q_N) = (\varphi(q_1) , \dots, \varphi(q_N) ).
+    \end{align*}
+  \end{prop}
+  \begin{proof}
+    Let $\varphi, \psi \in \Diff( \mathbb{R}^d)$ be such that
+    $j^{(0)}_z( \varphi) = j^{(0)}_z(\psi)$.  This means $\varphi
+    \circ \zeta = \psi$ for some $\zeta \in G_z^{(0)}$.  As
+    $\zeta(z_i) = z_i$, we observe $\psi(z_i) = \varphi(
+    \zeta(z_i) ) = \varphi(z_i)$ for $i=1,\dots,N$. So we have shown
+    that $j^{(0)}_z( \varphi ) = j^{(0)}_z( \psi)$ implies
+    $\varphi(z_i) = \psi(z_i)$ for $i = 1,\dots,N$.
+    Conversely, assume
+    $\varphi(z_i) = \psi(z_i)$ for $i = 1,\dots,N$ and define
+    $\zeta = \varphi^{-1} \circ \psi$.  We see that $\zeta( z_i) =
+    \varphi^{-1}( \psi(z_i) ) = \varphi^{-1}( \varphi(z_i) ) = z_i$.
+    Thus $\zeta \in G_z^{(0)}$ and $\varphi \circ \zeta = \psi$.  This
+    implies $j^{(0)}_z( \varphi) = j^{(0)}_z( \psi)$.  Thus we have
+    shown that $j^{(0)}_z( \varphi) = j^{(0)}_z( \psi) $ if and only
+    if $\varphi(z_i) = \psi(z_i)$ for $i = 1,\dots,N$.  In conclusion
+    we may identify the 0-jet $j^{(0)}_z( \varphi )$ with the tuple $(\varphi(z_1) , \dots
+    ,\varphi(z_N) ) \in Q^{(0)}$.
+    Finally, now that we have identified $\Diff(\mathbb{R}^d) /
+    G_z^{(0)}$ with $Q^{(0)}$ we must derive the action of
+    $\Diff(\mathbb{R}^d)$ on $Q^{(0)}$.   Given a $(q_1,\dots, q_N)$
+    we may choose an arbitrary $\psi \in \Diff(\mathbb{R}^d)$ such
+    that $j^{(0)}_z( \varphi) = (q_1,\dots,q_N)$.  Then the natural
+    action of $\varphi \in \Diff(\mathbb{R}^d)$ on $(q_1,\dots,q_N)$ is given by
+    \begin{align*}
+      \varphi \cdot (q_1,\dots,q_N) =& \varphi \cdot j_z^{(0)}( \psi)
+      \\
+      :=& j_z^{(0)}( \varphi \circ \psi) \\
+      =& ( \varphi( \psi( z_1) ) , \dots, \varphi(\psi(z_N)) ) \\
+      =& ( \varphi( q_1) , \dots, \varphi(q_N) ).
+    \end{align*}
+    This concludes the proof.
+  \end{proof}
+
+
+%  Old computations of kernel derivatives
+\subsection{Derivatives of Guassians}
+For a one dimensional Guassian $\frac{d^n}{dt^n}e^{-t^2/2} = (-1)^n H_n(t) e^{-t^2/2}$.  Therefore, for an $n$-dimensional Guassian with variance $\sigma$ we find
+\[
+\partial_{\alpha} e^{-x^2/(2\sigma^2)} = (-\sigma)^{-|\alpha|} e^{-x^2/(2\sigma^2)} \prod_i H_{\alpha_i}(x_{\alpha_i}) 
+\]
+
+
+\subsection{Derivatives of $K^\parallel$}
+We will do this in index notation.  Firstly
+\begin{align*}
+  K^\parallel(x)^{\alpha \beta} = e^{-r^2/(2\sigma^2)} (r^2)^{-1} x^\alpha x^\beta = e^{-r^2/(2\sigma^2)} [P^\parallel]^{\alpha \beta}.
+\end{align*}
+Where $[P^\parallel]^{\alpha \beta}$ is the projection matrix $\frac{xx^T}{\|x\|^2}$.
+Using the product rule we find
+\begin{align*}
+  \partial_{\gamma}K^\parallel(x)^{\alpha \beta} =& \partial_\gamma k^\parallel \cdot  [P^\parallel]^{\alpha \beta} +  k^\parallel \cdot  \partial_\gamma  [P^\parallel]^{\alpha \beta} \\
+  \partial_{\delta \gamma}K^\parallel(x)^{\alpha \beta} =& \partial_{\delta \gamma} k^\parallel  \cdot [P^\parallel]^{\alpha \beta} +  \partial_{ \gamma} k^\parallel \cdot \partial_\delta [P^\parallel]^{\alpha \beta}\\
+   &+  \partial_\delta k^\parallel \cdot \partial_\gamma  [P^\parallel]^{\alpha \beta} +  k^\parallel \cdot \partial_{\delta \gamma}  [P^\parallel]^{\alpha \beta}  \\
+  \partial_{\epsilon \delta \gamma}K^\parallel(x)^{\alpha \beta} =& \partial_{\epsilon \delta \gamma} k^\parallel \cdot [P^\parallel]^{\alpha \beta} + \partial_{\delta \gamma} k^\parallel \cdot \partial_\epsilon [P^\parallel]^{\alpha \beta} \\
+   &+  \partial_{\epsilon \gamma} k^\parallel \cdot \partial_\delta [P^\parallel]^{\alpha \beta} +  \partial_{ \gamma} k^\parallel \cdot \partial_{\epsilon \delta} [P^\parallel]^{\alpha \beta} \\
+   &+  \partial_{\epsilon \delta}
+   k^\parallel \cdot  \partial_\gamma [P^\parallel]^{\alpha \beta}
+   + \partial_{\delta} k^\parallel \cdot \partial_{\epsilon
+       \gamma} [P^\parallel]^{\alpha \beta} \\
+   &+ \partial_{\epsilon} k^\parallel \cdot \partial_{ \delta
+     \gamma} [P^\parallel]^{\alpha \beta} +  k^\parallel \cdot \partial_{ \epsilon \delta \gamma} [P^\parallel]^{\alpha \beta}
+\end{align*}
+So we need only compute three derivatives of $P^{\alpha \beta}$.  We
+find
+\begin{align*}
+  P^{\alpha \beta} =& f(x) x^\alpha x^\beta \\
+  \partial_\gamma P^{\alpha \beta} =& \partial_\gamma f(x) \cdot
+  x^\alpha x^\beta + f(x) ( \delta_\gamma^\alpha x^\beta + x^\alpha
+  \delta_\gamma^\beta) \\
+  \partial_{\delta \gamma} P^{\alpha \beta} =& \partial_{\delta
+    \gamma} f(x) x^\alpha x^\beta + \partial_\gamma f(x) (
+  \delta_\delta^\alpha x^\beta + x^\alpha \delta_\delta^\beta)\\
+  &+ \partial_\delta f(x) ( \delta_\gamma^\alpha x^\beta + x^\alpha
+  \delta_\gamma^\beta) + f(x) \cdot ( \delta_\gamma^\alpha
+  \delta_\delta^\beta + \delta_\delta^\alpha \delta_\gamma^\beta) \\
+\partial_{\epsilon \delta \gamma} P^{\alpha \beta}
+=& \partial_{\epsilon \delta \gamma}f(x) x^\alpha x^\beta
++ \partial_{\delta \gamma} f(x) ( \delta_\epsilon^\alpha x^\beta +
+x^\alpha \delta_\epsilon^\beta) \\
+&+ \partial_{\epsilon \gamma} f(x) \cdot ( \delta_\delta^\alpha
+x^\beta + x^\alpha \delta_\delta^\beta) + \partial_\gamma f(x)
+(\delta_\delta^\alpha \delta_\epsilon^\beta + \delta_\epsilon^\alpha
+\delta_\delta^\beta) \\
+&+ \partial_{\epsilon \delta}f(x) \cdot (\delta_\gamma^\alpha x^\beta
++ x^\alpha \delta_\gamma^\beta) + \partial_\delta f(x) \cdot (
+\delta_\gamma^\alpha \delta_\epsilon^\beta + \delta_\epsilon^\alpha
+\delta_\gamma^\beta) \\
+&+ \partial_{\epsilon} f(x) \cdot ( \delta_\gamma^\alpha
+\delta_\delta^\beta + \delta_\delta^\alpha \delta_\gamma^\beta)
+\end{align*}
+and finally
+\begin{align*}
+  f(x) &= r^{-2} \\
+  \partial_\gamma f(x) &= -2r^{-4} x^\gamma \\
+  \partial_{\delta \gamma} f(x) &= 8 (r^2)^{-3} x^\delta x^\gamma -
+  2(r^2)^{-2} \delta_\delta^\gamma \\
+  \partial_{\epsilon \delta \gamma} f(x) &= 8 (r^2)^{-3} (
+  \delta_\epsilon^\delta x^\gamma + x^\delta \delta_\epsilon^\gamma + x^\epsilon \delta^\gamma_\delta) -
+  48 ( r^2)^{-4} x^\epsilon x^\delta x^\gamma
+\end{align*}
+Given the derivatives of $k^\parallel$ and $[P^\parallel]$ we can compute the derivatives of $[K^\perp]^{\alpha \beta} = k^\perp \cdot ( \delta^{\alpha \beta} - [P^\parallel]^{\alpha \beta})$.  We find
+\begin{align*}
+  k^\perp =& (1 - r^2/\sigma^2) k^\parallel \\
+  \partial_\gamma k^\perp =& \frac{-2 x^\gamma}{\sigma^2} k^\parallel + (1-r^2 / \sigma^2) \partial_\gamma k^\parallel \\
+  \partial_{\delta \gamma} k^\perp =& \frac{-2}{\sigma^2} ( \delta_{\delta}^\gamma \partial_\epsilon k^\parallel + \delta_\epsilon^\gamma \partial_\delta k^\parallel + \delta_\epsilon^\delta \partial_\gamma k^\parallel) \\
+  &- \frac{2}{\sigma^2} ( x^\gamma \partial_{\epsilon \delta}k^\parallel + x^\delta \partial_{\epsilon \gamma}k^\parallel + x^\epsilon \partial_{\delta \gamma}k^\parallel) \\
+  &+ (1-r^2/\sigma^2) \partial_{\epsilon \delta \gamma}k^\parallel
+\end{align*}
+and also $D^{\alpha} P^\perp = - D^{\alpha} P^\parallel$ for any multi-index $\alpha$ with $|\alpha| > 0$.  So we can compute the derivatives of $K^\perp$ as well.  In particular
+\begin{align*}
+  [K^\perp]^{\alpha \beta} =& k^\perp \cdot [P^\perp]^{\alpha \beta} \\
+  \partial_\gamma [K^\perp]^{\alpha \beta} =& \partial_\gamma k^\perp \cdot [P^\perp]^{\alpha \beta} + k^\perp \cdot \partial_{\gamma} [P^\perp]^{\alpha \beta} \\
+  \partial_{\delta \gamma} [K^\perp]^{\alpha \beta} =& \partial_{\delta \gamma} k^\perp \cdot [P^\perp]^{\alpha \beta} +\partial_\gamma k^\perp \cdot \partial_\delta [P^\perp]^{\alpha \beta} \\
+  &+\partial_{\delta} k^\perp \cdot \partial_{\gamma} [P^\perp]^{\alpha \beta} +  k^\perp \cdot \partial_{\gamma \delta } [P^\perp]^{\alpha \beta} \\
+  \partial_{\epsilon \delta \gamma} [K^\perp]^{\alpha \beta} =& \partial_{\epsilon \delta \gamma} k^\perp \cdot [P^\perp]^{\alpha \beta} + \partial_{\delta \gamma} k^\perp \cdot \partial_\epsilon [P^\perp]^{\alpha \beta} \\
+  &+\partial_{ \epsilon \gamma} k^\perp \cdot \partial_\delta [P^\perp]^{\alpha \beta} + \partial_\gamma k^\perp \cdot \partial_{ \epsilon \delta } [P^\perp]^{\alpha \beta} \\
+  &+\partial_{ \epsilon \delta} k^\perp \cdot \partial_{\gamma} [P^\perp]^{\alpha \beta} +\partial_{\delta} k^\perp \cdot \partial_{\epsilon \gamma} [P^\perp]^{\alpha \beta} \\
+  &+ \partial_\epsilon k^\perp \cdot \partial_{ \delta \gamma } [P^\perp]^{\alpha \beta} + k^\perp \cdot \partial_{\epsilon \delta \gamma } [P^\perp]^{\alpha \beta}
+\end{align*}
+
+
