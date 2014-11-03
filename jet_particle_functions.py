@@ -158,7 +158,26 @@ def Hamiltonian( q , p , mu ):
     term_01 = - np.einsum('ia,ijabc,jbc',p,DK,mu)
     term_11 = - 0.5*np.einsum('iac,ijabcd,jbd',mu,D2K,mu)
     return term_00 + term_01 + term_11
-    
+
+def lin_momentum( q , p , mu, particles = range(N) ):
+    # Returns linear (spatial) momentum of set of particles, defaults
+    # to all particles, i.e. total momentum.
+    res = np.zeros( [DIM] )
+    for i in particles: res += p[i]
+    return res
+
+def ang_momentum( q , p , mu, particles = range(N) ):
+    # Returns angular (spatial) momentum of set of particles, defaults
+    # to all particles, i.e. total angular momentum.
+    res = np.zeros( [DIM,DIM] )
+    for i in particles:
+        for a in range(DIM):
+            for b in range(a):
+                tmp = p[i][a]*q[i][b] - p[i][b]*q[i][a]
+                res[a][b] += tmp
+                res[b][a] -= tmp
+    return res
+
 def ode_function( state , t ):
     q , p , mu = state_to_weinstein_darboux( state )
     K,DK,D2K,D3K = derivatives_of_kernel( q , q )

@@ -48,16 +48,11 @@ T = 60.0
 #print 'testing various functions'
 #print  jpf.test_functions(1)
 
-def momentum(q,p,mu):
-	res = [ 0,0 ]
-	for i in range(N): res += p[i]
-	return res
-
-
-E0 = jpf.Hamiltonian(q,p,mu)
-p0 = momentum(q,p,mu)
-print 'initial energy is ' + str(E0)
-print 'initial momentum: ' + str(p0[0]) + ',' + str(p0[1])
+Ei = jpf.Hamiltonian(q,p,mu)
+pi = jpf.lin_momentum(q,p,mu)
+Li = jpf.ang_momentum(q,p,mu)
+print 'initial energy is ' + str(Ei)
+print 'initial momentum: ' + str(pi[0]) + ',' + str(pi[1]) + ',  ' + str(Li[0][1])
 
 state =  jpf.weinstein_darboux_to_state( q , p , mu )
 step_max = 200
@@ -67,7 +62,9 @@ np.save('state_data',y_span)
 np.save('time_data',t_span)
 
 q,p,mu = jpf.state_to_weinstein_darboux( y_span[step_max-1] )
+
 Ef = jpf.Hamiltonian(q,p,mu)
-pf = momentum(q,p,mu)
-print '  final energy is ' + str(Ef) + '  diff = ' + str(Ef-E0)
-print '  final momentum: ' + str(p0[0]) + ',' + str(p0[1])
+pf = jpf.lin_momentum(q,p,mu)
+Lf = jpf.ang_momentum(q,p,mu)
+print '  final energy is ' + str(Ef) + '  diff = ' + str(Ef-Ei)
+print '  final momentum: ' + str(pf[0]) + ',' + str(pf[1]) + ',  ' + str(Lf[0][1])
