@@ -7,44 +7,44 @@ SIGMA = 1.0
 
 import math
 
+rho_large = 0.5
+
 def scalar_F1( rho ):
-    rho_is_large = rho > 0.5
     out_0 = 0.
     out_1 = 0.
     out_2 = 0.
     out_3 = 0.
-    if rho_is_large:
+    if rho > rho_large:
         g = np.exp(-rho)
-        out_0 = g - 0.5*(1. - g)/rho
+        out_0 =  g - 0.5*(1. - g)/rho
         out_1 = -g + 0.5*(1. - g - rho*g )/ (rho**2)
-        out_2 = g - (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
-        out_3 = -g + 3.*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
+        out_2 =  g -     (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
+        out_3 = -g + 3.0*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
     else:
         for k in range(0,5):
-            out_0 = out_0 + (-1)**k * (1. - 1./(2*(k+1) ) ) * rho**k / math.factorial(k)
-            out_1 = out_1 + (-1)**(k+1) * (1. - 1./(2*(k+2) ) ) * rho**k / math.factorial(k)
-            out_2 = out_2 + (-1)**(k) * (1. - 1./(2*(k+3) ) ) * rho**k / math.factorial(k)
-            out_3 = out_3 + (-1)**(k+1) * (1. - 1./(2*(k+4) ) ) * rho**k / math.factorial(k)
+            out_0 += (-1)**k     * (1. - 1./(2*(k+1) ) ) * rho**k / math.factorial(k)
+            out_1 += (-1)**(k+1) * (1. - 1./(2*(k+2) ) ) * rho**k / math.factorial(k)
+            out_2 += (-1)**(k)   * (1. - 1./(2*(k+3) ) ) * rho**k / math.factorial(k)
+            out_3 += (-1)**(k+1) * (1. - 1./(2*(k+4) ) ) * rho**k / math.factorial(k)
     return out_0, out_1, out_2, out_3
 
 def scalar_F2( rho ):
-    rho_is_large = rho > 0.5
     out_0 = 0.
     out_1 = 0.
     out_2 = 0.
     out_3 = 0.
-    if rho_is_large:
+    if rho > rho_large:
         g = np.exp(-rho)
         out_0 = 0.5*rho**(-2) * ( 1. - g - rho*g)
-        out_1 = - rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
-        out_2 = 3*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
-        out_3 = -12.*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
+        out_1 = -   rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
+        out_2 = 3.0*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
+        out_3 = -12*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
     else:
         for k in range(0,5):
-            out_0 = out_0 + 0.5*(-1)**k * ( 1./(k+1) - 1./( (k+1)*(k+2) ) ) * rho**k / math.factorial(k)
-            out_1 = out_1 + 0.5*(-1)**(k+1) * (1./(k+2) - 1./( (k+2)*(k+3) ) ) * rho**k / math.factorial(k)
-            out_2 = out_2 + 0.5*(-1)**(k) * (1./(k+3) - 1./( (k+3)*(k+4) ) ) * rho**k / math.factorial(k)
-            out_3 = out_3 + 0.5*(-1)**(k+1) * (1./(k+4) - 1./( (k+4)*(k+5) ) ) * rho**k / math.factorial(k)
+            out_0 += 0.5*(-1)**k     * (1./(k+1) - 1./( (k+1)*(k+2) ) ) * rho**k / math.factorial(k)
+            out_1 += 0.5*(-1)**(k+1) * (1./(k+2) - 1./( (k+2)*(k+3) ) ) * rho**k / math.factorial(k)
+            out_2 += 0.5*(-1)**k     * (1./(k+3) - 1./( (k+3)*(k+4) ) ) * rho**k / math.factorial(k)
+            out_3 += 0.5*(-1)**(k+1) * (1./(k+4) - 1./( (k+4)*(k+5) ) ) * rho**k / math.factorial(k)
     return out_0 , out_1 , out_2, out_3
 
 def Hermite( k , x):
@@ -63,7 +63,7 @@ def Hermite( k , x):
         return x**5 - 10*x**3 + 15*x
     else:
         print 'error in Hermite function, unknown formula for k=' + str(k)
-        
+
 def derivatives_of_Gaussians( nodes , q ):
     #given x_i , x_j returns G(x_ij) for x_ij = x_i - x_j
     N_nodes = nodes.shape[0]
@@ -74,14 +74,14 @@ def derivatives_of_Gaussians( nodes , q ):
 
     rad_sq = np.einsum('ija,ija->ij',dx,dx)
     delta = np.eye(DIM)
-    G = np.exp( -rad_sq / (2*SIGMA**2) ) 
-    DG = np.zeros([ N_nodes , N, DIM ]) #indices 0 and 1 are particle-indices
+    G = np.exp( -rad_sq / (2*SIGMA**2) )
+    DG  = np.zeros([ N_nodes , N, DIM ]) #indices 0 and 1 are particle-indices
     D2G = np.zeros([ N_nodes , N, DIM , DIM ]) #indices 0 and 1 are particle-indices
     D3G = np.zeros([ N_nodes , N, DIM , DIM , DIM ]) #indices 0 and 1 are particle-indices
 
     DG = np.einsum('ija,ij->ija',-dx/(SIGMA**2) , G )
     D2G = (1./SIGMA**2)*(np.einsum('ab,ij->ijab',-delta , G ) - np.einsum('ija,ijb->ijab',dx , DG ) )
-    D3G = (1./SIGMA**2)*( np.einsum('ab,ijc->ijabc',-delta,DG) - np.einsum('ac,ijb->ijabc',delta,DG) - np.einsum('ija,ijcb->ijabc',dx,D2G) )
+    D3G = (1./SIGMA**2)*(np.einsum('ab,ijc->ijabc',-delta,DG) - np.einsum('ac,ijb->ijabc',delta,DG) - np.einsum('ija,ijcb->ijabc',dx,D2G) )
     return G , DG, D2G, D3G
 
 def derivatives_of_kernel( nodes , q ):
@@ -100,8 +100,8 @@ def derivatives_of_kernel( nodes , q ):
     F2_func = np.vectorize( scalar_F2 )
     F1,DF1,D2F1,D3F1 = F1_func( rho )
     F2,DF2,D2F2,D3F2 = F2_func( rho )
-    K = np.zeros( [N_nodes, N , DIM , DIM ] )
-    DK = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
+    K   = np.zeros( [N_nodes, N , DIM , DIM ] )
+    DK  = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
     D2K = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
     D3K = np.zeros( [N_nodes, N , DIM , DIM, DIM ] )
     xx = np.einsum('ija,ijb->ijab',x,x)
