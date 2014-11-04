@@ -7,34 +7,38 @@ SIGMA = 1.0
 
 import math
 
-rho_large = 0.5
+rho_large = 0.5 # Cut-off point below which to use Taylor series
+diff_deg = 6 # Maximum degree of derivatives of F1, F2 (actually deg+1)
 
 def scalar_F1( rho ):
-    res = np.zeros( [4] )
+    res = np.zeros( [diff_deg] )
     if rho > rho_large:
         g = np.exp(-rho)
         res[0] =  g - 0.5*(1. - g)/rho
         res[1] = -g + 0.5*(1. - g - rho*g )/ (rho**2)
         res[2] =  g -     (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
         res[3] = -g + 3.0*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
+        res[4] =  g -  12*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. - g*rho**4/24. )/ (rho**5)
+        res[5] = -g +  60*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. - g*rho**4/24. - g*rho**5/120. )/ (rho**5)
     else:
-        for d in range(4):
+        for d in range(diff_deg):
             for k in range(5):
                 res[d] += (-1)**(k+d) * (1. - 1./(2*(k+d+1)) ) * rho**k / math.factorial(k)
     return tuple(res)
 
-# global factor 1/2 wrong here? And power rho**(-2) in the rho_large case?
 def scalar_F2( rho ):
-    res = np.zeros( [4] )
+    res = np.zeros( [diff_deg] )
     if rho > rho_large:
         g = np.exp(-rho)
         res[0] = 0.5*rho**(-2) * ( 1 - g - rho*g)
         res[1] = -   rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
         res[2] = 3.0*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
         res[3] = -12*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
+        res[4] =  60*rho**(-6) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. - g*rho**5 / 120. )
+        res[5] = 360*rho**(-7) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. - g*rho**5 / 120. - g*rho**6 / 720.)
     else:
-        for d in range(4):
-            for k in range(0,5):
+        for d in range(diff_deg):
+            for k in range(5):
                 res[d] += 0.5*(-1)**(k+d) * 1./(k+d+2) * rho**k / math.factorial(k)
     return tuple(res)
 
