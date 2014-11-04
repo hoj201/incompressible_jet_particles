@@ -35,7 +35,7 @@ def scalar_F2( rho ):
     else:
         for d in range(4):
             for k in range(0,5):
-                res[d] += 0.5*(-1)**(k+d) * (1./(k+d+1) - 1./((k+d+1)*(k+d+2)) ) * rho**k / math.factorial(k)
+                res[d] += 0.5*(-1)**(k+d) * 1./(k+d+2) * rho**k / math.factorial(k)
     return tuple(res)
 
 def Hermite( k , x):
