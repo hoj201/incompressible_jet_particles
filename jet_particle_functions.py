@@ -10,42 +10,33 @@ import math
 rho_large = 0.5
 
 def scalar_F1( rho ):
-    out_0 = 0.
-    out_1 = 0.
-    out_2 = 0.
-    out_3 = 0.
+    res = np.zeros( [4] )
     if rho > rho_large:
         g = np.exp(-rho)
-        out_0 =  g - 0.5*(1. - g)/rho
-        out_1 = -g + 0.5*(1. - g - rho*g )/ (rho**2)
-        out_2 =  g -     (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
-        out_3 = -g + 3.0*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
+        res[0] =  g - 0.5*(1. - g)/rho
+        res[1] = -g + 0.5*(1. - g - rho*g )/ (rho**2)
+        res[2] =  g -     (1. - g - rho*g - 0.5 * rho**2 * g )/ (rho**3)
+        res[3] = -g + 3.0*(1. - g - rho*g - 0.5 * rho**2 * g - g*rho**3/6. )/ (rho**4)
     else:
-        for k in range(0,5):
-            out_0 += (-1)**k     * (1. - 1./(2*(k+1) ) ) * rho**k / math.factorial(k)
-            out_1 += (-1)**(k+1) * (1. - 1./(2*(k+2) ) ) * rho**k / math.factorial(k)
-            out_2 += (-1)**(k)   * (1. - 1./(2*(k+3) ) ) * rho**k / math.factorial(k)
-            out_3 += (-1)**(k+1) * (1. - 1./(2*(k+4) ) ) * rho**k / math.factorial(k)
-    return out_0, out_1, out_2, out_3
+        for d in range(4):
+            for k in range(5):
+                res[d] += (-1)**(k+d) * (1. - 1./(2*(k+d+1)) ) * rho**k / math.factorial(k)
+    return tuple(res)
 
+# global factor 1/2 wrong here? And power rho**(-2) in the rho_large case?
 def scalar_F2( rho ):
-    out_0 = 0.
-    out_1 = 0.
-    out_2 = 0.
-    out_3 = 0.
+    res = np.zeros( [4] )
     if rho > rho_large:
         g = np.exp(-rho)
-        out_0 = 0.5*rho**(-2) * ( 1. - g - rho*g)
-        out_1 = -   rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
-        out_2 = 3.0*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
-        out_3 = -12*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
+        res[0] = 0.5*rho**(-2) * ( 1 - g - rho*g)
+        res[1] = -   rho**(-3) * ( 1 - g - rho*g - 0.5* rho**2 * g)
+        res[2] = 3.0*rho**(-4) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6.)
+        res[3] = -12*rho**(-5) * ( 1 - g - rho*g - 0.5* rho**2 * g - g*rho**3 / 6. - g*rho**4 / 24. )
     else:
-        for k in range(0,5):
-            out_0 += 0.5*(-1)**k     * (1./(k+1) - 1./( (k+1)*(k+2) ) ) * rho**k / math.factorial(k)
-            out_1 += 0.5*(-1)**(k+1) * (1./(k+2) - 1./( (k+2)*(k+3) ) ) * rho**k / math.factorial(k)
-            out_2 += 0.5*(-1)**k     * (1./(k+3) - 1./( (k+3)*(k+4) ) ) * rho**k / math.factorial(k)
-            out_3 += 0.5*(-1)**(k+1) * (1./(k+4) - 1./( (k+4)*(k+5) ) ) * rho**k / math.factorial(k)
-    return out_0 , out_1 , out_2, out_3
+        for d in range(4):
+            for k in range(0,5):
+                res[d] += 0.5*(-1)**(k+d) * (1./(k+d+1) - 1./((k+d+1)*(k+d+2)) ) * rho**k / math.factorial(k)
+    return tuple(res)
 
 def Hermite( k , x):
     #Calculate the 'statisticians' Hermite polynomials
