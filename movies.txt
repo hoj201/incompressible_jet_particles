@@ -43,3 +43,18 @@ near_merge-3rd-1jetlet
 d = 1.04*SIGMA
 mu[2] = 0.2*spin
 
+
+N = 2 again
+
+just_merge-stretch
+
+d = 1.1*SIGMA
+omega = 0.0
+0.2*stretch
+
+near_merge-stretch
+
+d = 1.3*SIGMA
+omega = 0.0
+0.2*stretch
+
