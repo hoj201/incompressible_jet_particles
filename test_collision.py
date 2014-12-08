@@ -18,6 +18,7 @@ shear = np.array( [ [0. , 1.] , [0. , 0.] ] )
 q = np.zeros([N,DIM])
 p = np.zeros([N,DIM])
 mu = np.zeros([N,DIM,DIM])
+q1 = np.zeros([N,DIM,DIM])
 #p = np.random.rand(N,DIM) #initial 0-momentum of jetlets
 #mu = np.random.rand(N,DIM,DIM)
 #mu[0] = 0.5*spin
@@ -27,6 +28,8 @@ mu = np.zeros([N,DIM,DIM])
 #mu = np.random.randn(N,DIM,DIM)
 #for i in range(0,N):
 #    mu[i] = mu[i] - np.mean(np.diag(mu[i]))*np.eye(DIM)
+for i in range(0,N):
+    q1[i] = np.eye(DIM)
 
 r0 = 3.0
 p0 = -1.5
@@ -54,17 +57,31 @@ Li = jpf.ang_momentum(q,p,mu)
 print 'initial energy is ' + str(Ei)
 print 'initial momentum: ' + str(pi[0]) + ',' + str(pi[1]) + ',  ' + str(Li[0][1])
 
-state =  jpf.weinstein_darboux_to_state( q , p , mu )
+print 'initial J_R^1 momenta:'
+Ki = np.zeros([N,DIM,DIM])
+for i in range(0,N):
+    Ki[i] = jpf.Jr1_momentum(q,p,mu,q1,particles=[i])
+    print Ki[i]
+
+state =  jpf.weinstein_darboux_to_state( q , p , mu , q1 )
 step_max = 200
 t_span = np.linspace( 0. , T , step_max )
-y_span = odeint( jpf.ode_function , state , t_span , rtol=0.000001 )
+y_span = odeint( jpf.ode_function , state , t_span , rtol=0.0000001 )
 np.save('state_data',y_span)
 np.save('time_data',t_span)
 
-q,p,mu = jpf.state_to_weinstein_darboux( y_span[step_max-1] )
+q,p,mu,q1 = jpf.state_to_weinstein_darboux( y_span[step_max-1] )
 
 Ef = jpf.Hamiltonian(q,p,mu)
 pf = jpf.lin_momentum(q,p,mu)
 Lf = jpf.ang_momentum(q,p,mu)
 print '  final energy is ' + str(Ef) + '  diff = ' + str(Ef-Ei)
 print '  final momentum: ' + str(pf[0]) + ',' + str(pf[1]) + ',  ' + str(Lf[0][1])
+print '  final position: ' + str(q[0][0]) + ',' + str(q[0][1])
+
+# J_R momenta:
+Kf = np.zeros([N,DIM,DIM])
+for i in range(0,N):
+    Kf[i] = jpf.Jr1_momentum(q,p,mu,q1,particles=[i])
+    print Kf[i]
+    print 'K[%2i] preserved? sum-abs = %3e' % (i,np.sum(np.abs(Ki[i]-Kf[i])))

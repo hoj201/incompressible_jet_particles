@@ -173,8 +173,18 @@ def ang_momentum( q , p , mu, particles = range(N) ):
                 res[b][a] -= tmp
     return res
 
+def Jr1_momentum( q , p , mu, q1 , particles = range(N) ):
+    # Returns momentum associated to right symmetry of iso(z) at 1-jet
+    # level of a set of particles, defaults to all particles.
+    res = np.zeros( [DIM,DIM] )
+    for i in particles:
+        a = q1[i]
+        ainv = np.linalg.inv(a)
+        res += -np.einsum('ac,ab,db->cd',a,mu[i],ainv)
+    return res
+
 def ode_function( state , t ):
-    q , p , mu = state_to_weinstein_darboux( state )
+    q , p , mu , q1 = state_to_weinstein_darboux( state )
     K,DK,D2K,D3K = derivatives_of_kernel( q , q )
     dq = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
     xi = np.einsum('ijacb,jc->iab',DK,p) - np.einsum('ijacbd,jcd->iab',D2K,mu)
@@ -184,20 +194,23 @@ def ode_function( state , t ):
         - np.einsum('jd,ibc,ijdbca->ia',p,mu,D2K) \
         + np.einsum('icb,jed,ijceabd->ia',mu,mu,D3K)
     dmu = np.einsum('iac,ibc->iab',mu,xi) - np.einsum('icb,ica->iab',mu,xi)
-    dstate = weinstein_darboux_to_state( dq , dp , dmu )
+    dq1 = np.einsum('iab,ibc->iac',xi,q1)
+    dstate = weinstein_darboux_to_state( dq , dp , dmu , dq1 )
     return dstate
 
 def state_to_weinstein_darboux( state ):
     q = np.reshape( state[0:(N*DIM)] , [N,DIM] )
     p = np.reshape( state[(N*DIM):(2*N*DIM)] , [N,DIM] )
     mu = np.reshape( state[(2*N*DIM):(2*N*DIM + N*DIM*DIM)] , [N,DIM,DIM] )
-    return q , p , mu
+    q1 = np.reshape( state[(2*N*DIM + N*DIM*DIM):(2*N*DIM + 2*N*DIM*DIM)] , [N,DIM,DIM] )
+    return q , p , mu , q1
 
-def weinstein_darboux_to_state( q , p , mu ):
-    state = np.zeros( 2*N*DIM + N*DIM*DIM )
+def weinstein_darboux_to_state( q , p , mu , q1 ):
+    state = np.zeros( 2*N*DIM + 2*N*DIM*DIM )
     state[0:(N*DIM)] = np.reshape( q , N*DIM )
     state[(N*DIM):(2*N*DIM)] = np.reshape( p , N*DIM )
     state[(2*N*DIM):(2*N*DIM+N*DIM*DIM)] = np.reshape( mu , N*DIM*DIM)
+    state[(2*N*DIM+N*DIM*DIM):(2*N*DIM+2*N*DIM*DIM)] = np.reshape( q1 , N*DIM*DIM)
     return state
 
 
@@ -332,7 +345,7 @@ def test_functions( trials ):
 
 
 
-    s = weinstein_darboux_to_state( q , p , mu)
+    s = weinstein_darboux_to_state( q , p , mu ) # FIXME: add q1
     ds = ode_function( s , 0 )
     dq,dp_coded,dmu = state_to_weinstein_darboux( ds ) 
 
