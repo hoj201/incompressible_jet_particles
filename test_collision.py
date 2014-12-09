@@ -33,16 +33,15 @@ for i in range(0,N):
 
 r0 = 3.0
 p0 = -1.5
-d = 1.2*SIGMA
-J = d*p0
-omega = 0.1
-q[0] = [-r0,-d/2]
-q[1] = [ r0, d/2]
-#q[2] = [ -2, -3.5 ]
-p[0][0] = -p0
-p[1][0] =  p0
-#p[2][0] =  0.4
-mu[0] =  omega*spin
+d = 0.33
+omega = 0.0
+q[0] = [-r0, 0 ]
+q[1] = [ r0, 0 ]
+#q[2] = [ -2, -4.5 ]
+p[0] = [-p0, d ]
+p[1] = [ p0,-d ]
+#p[2][0] = 0.7
+mu[0] =  omega*spin #+ 0.2*stretch
 mu[1] = -omega*spin
 #mu[2] = 0.2*spin
 
@@ -51,11 +50,17 @@ T = 60.0
 #print 'testing various functions'
 #print  jpf.test_functions(1)
 
+print 'parameters:'
+print 'r0 = %.2f' % r0
+print 'p0 = %.2f' % p0
+print 'd  = %.2f' % d
+print 'omega = %.2f' % omega
+
 Ei = jpf.Hamiltonian(q,p,mu)
 pi = jpf.lin_momentum(q,p,mu)
 Li = jpf.ang_momentum(q,p,mu)
-print 'initial energy is ' + str(Ei)
-print 'initial momentum: ' + str(pi[0]) + ',' + str(pi[1]) + ',  ' + str(Li[0][1])
+print 'initial energy: %.3f' % Ei
+print 'initial momentum: %.3f,%.3f  %.3f' % ( pi[0], pi[1], Li[0][1] )
 
 print 'initial J_R^1 momenta:'
 Ki = np.zeros([N,DIM,DIM])
@@ -75,13 +80,16 @@ q,p,mu,q1 = jpf.state_to_weinstein_darboux( y_span[step_max-1] )
 Ef = jpf.Hamiltonian(q,p,mu)
 pf = jpf.lin_momentum(q,p,mu)
 Lf = jpf.ang_momentum(q,p,mu)
-print '  final energy is ' + str(Ef) + '  diff = ' + str(Ef-Ei)
-print '  final momentum: ' + str(pf[0]) + ',' + str(pf[1]) + ',  ' + str(Lf[0][1])
-print '  final position: ' + str(q[0][0]) + ',' + str(q[0][1])
+print '  final energy: %.3f  diff = %.3e' % ( Ef, Ef-Ei )
+print '  final momentum: %.3f,%.3f  %.3f  diff = %.3e %.3e' % \
+    ( pf[0], pf[1], Lf[0][1], np.linalg.norm(pf-pi), np.fabs(Lf[0][1]-Li[0][1]) )
+print '  final position: %.2f,%.2f' % ( q[0][0], q[0][1] )
+print 'dist = %.3e   p_0 = %.3e' % ( np.linalg.norm(q[1]-q[0]), np.linalg.norm(p[0]) )
 
-# J_R momenta:
+print '  final J_R^1 momenta:'
 Kf = np.zeros([N,DIM,DIM])
 for i in range(0,N):
     Kf[i] = jpf.Jr1_momentum(q,p,mu,q1,particles=[i])
     print Kf[i]
+#    print q1[i]
     print 'K[%2i] preserved? sum-abs = %3e' % (i,np.sum(np.abs(Ki[i]-Kf[i])))
