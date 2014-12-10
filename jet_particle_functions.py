@@ -168,7 +168,7 @@ def ang_momentum( q , p , mu, particles = range(N) ):
     for i in particles:
         for a in range(DIM):
             for b in range(a):
-                tmp = p[i][a]*q[i][b] - p[i][b]*q[i][a]
+                tmp = p[i][a]*q[i][b] - p[i][b]*q[i][a] + mu[i][a][b] - mu[i][b][a]
                 res[a][b] += tmp
                 res[b][a] -= tmp
     return res

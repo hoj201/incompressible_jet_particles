@@ -29,7 +29,7 @@ d = 0.3
 omega = 0.1
 
 E     error: 1.7e-04 (E = 1.130)
-J_L   error: 5.5e-11 2.5
+J_L   error: 5.5e-11 4.1e-07
 J_R^1 error: 3.0e-04 3.6e-04
 
 ----------
@@ -39,7 +39,7 @@ near_merge-1jetlets
 d = 0.32
 
 E     error: 1.8e-05 (E = 1.137)
-J_L   error: 7.1e-16 1.1e-01
+J_L   error: 7.1e-16 1.7e-07
 J_R^1 error: 3.5e-07 3.5e-06
 
 ----------
@@ -50,8 +50,8 @@ just_merge-3rd-0jetlet
 
 d = 0.32
 omega = 0.0
-q[2] = [ -2, -3.5 ]
-p[2] = [ 1.5, 0.0 ]
+q[2] = [ -2, -4.5 ]
+p[2] = [ 0.7, 0.0 ]
 
 E     error: 2.082e-04 (E = 1.182)
 J_L   error: 3.849e-12 6.106e-05
@@ -75,7 +75,7 @@ d = 0.32
 mu[2] = 0.2*spin
 
 E     error: 2.3e-04 (E = 1.222)
-J_L   error: 9.962e-13 1.824e-02
+J_L   error: 9.962e-13 5.157e-05
 J_R^1 error: 0 0 (within numerical precision)
 
 ----------
@@ -83,10 +83,9 @@ J_R^1 error: 0 0 (within numerical precision)
 near_merge-3rd-1jetlet
 
 d = 0.325
-mu[2] = 0.2*spin
 
 E     error: 1.3e-05 (E = 1.224)
-J_L   error: 4.579e-14 1.883e-02
+J_L   error: 4.579e-14 2.080e-05
 J_R^1 error: 0 0 (within numerical precision)
 
 ----------
@@ -100,7 +99,7 @@ omega = 0.0
 mu[0] = 0.2*stretch
 
 E     error: 1.447e-04 (E = 1.131)
-J_L   error: 3.358e-13 2.5
+J_L   error: 3.358e-13 1.869e-07
 J_R^1 error: 2.9e-04 0
 
 ----------
@@ -110,5 +109,5 @@ near_merge-stretch
 d = 0.33
 
 E     error: 1.542e-04 (E = 1.134)
-J_L   error: 4.642e-15 8.511e-01
+J_L   error: 4.642e-15 1.970e-07
 J_R^1 error: 3.5e-05 0
