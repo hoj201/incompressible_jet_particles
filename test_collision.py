@@ -69,7 +69,7 @@ for i in range(0,N):
     print Ki[i]
 
 state =  jpf.weinstein_darboux_to_state( q , p , mu , q1 )
-step_max = 200
+step_max = 400
 t_span = np.linspace( 0. , T , step_max )
 y_span = odeint( jpf.ode_function , state , t_span , rtol=0.0000001 )
 np.save('state_data',y_span)
