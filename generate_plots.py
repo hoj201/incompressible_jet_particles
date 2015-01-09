@@ -26,6 +26,7 @@ for i in range(N_timestep):
         momenta[j][2][i] = jpf.ang_momentum(q,p,mu,[j])[0][1]
 
 plt.figure()
+plt.xlabel('t')
 plt.plot(times,momenta[0][2],'b-',
          times,momenta[1][2],'r-',
          times,momenta[2][2],'g-')
