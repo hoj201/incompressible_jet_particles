@@ -31,19 +31,22 @@ q1 = np.zeros([N,DIM,DIM])
 for i in range(0,N):
     q1[i] = np.eye(DIM)
 
+# Initial conditions:
 r0 = 3.0
 p0 = -1.5
 d = 0.33
 omega = 0.0
 q[0] = [-r0, 0 ]
 q[1] = [ r0, 0 ]
-#q[2] = [ -2, -4.5 ]
 p[0] = [-p0, d ]
 p[1] = [ p0,-d ]
-#p[2][0] = 0.7
 mu[0] =  omega*spin #+ 0.2*stretch
 mu[1] = -omega*spin
-#mu[2] = 0.2*spin
+
+if N >= 3:
+    q[2] = [ -2, -4.5 ]
+    p[2][0] = 0.7
+#    mu[2] = 0.2*spin
 
 T = 60.0
 
