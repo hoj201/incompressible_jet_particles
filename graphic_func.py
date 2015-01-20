@@ -6,7 +6,7 @@ N = jpf.N
 DIM = jpf.DIM
 SIGMA = jpf.SIGMA
 
-def display_velocity( q , p ,mu ):
+def display_velocity( q , p ,mu , mu2 = None):
  W = 5*SIGMA
  res = 30
  N_nodes = res**DIM
@@ -16,6 +16,9 @@ def display_velocity( q , p ,mu ):
  nodes[:,1] = np.reshape( store.T , N_nodes )
  K,DK,D2K,D3K = jpf.derivatives_of_kernel(nodes , q)
  vel_field = np.einsum('ijab,jb->ia',K,p) - np.einsum('ijabc,jbc->ia',DK,mu)
+ if mu2 != None:
+  vel_field = vel_field + np.einsum('ijabcd,jbcd->ia',D2K,mu2)
+
  U = vel_field[:,0]
  V = vel_field[:,1]
  plt.figure()
