@@ -16,7 +16,7 @@ shear   = np.array( [ [0. , 1.] , [1. , 0.] ] )
 
 if N != 1:
     print 'This simulation requires N=1.'
-    exit
+    exit(1)
 
 # Initialize 1-jetlet
 q = np.zeros([N,DIM])
