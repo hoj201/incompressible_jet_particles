@@ -10,10 +10,6 @@ N = jpf.N # number of jetlets
 DIM = jpf.DIM # dimension of space
 SIGMA = jpf.SIGMA
 
-spin    = np.array( [ [0. ,-1.] , [1. , 0.] ] )
-stretch = np.array( [ [1. , 0.] , [0. ,-1.] ] )
-shear   = np.array( [ [0. , 1.] , [1. , 0.] ] )
-
 #q = np.random.rand(N,DIM) #initial positions of jetlets
 q = np.zeros([N,DIM])
 p = np.zeros([N,DIM])

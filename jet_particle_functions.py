@@ -5,6 +5,11 @@ DIM = 2
 N = 2
 SIGMA = 1.0
 
+# Basis for sl(2) and its dual
+spin    = np.array( [ [0. ,-1.] , [1. , 0.] ] )
+stretch = np.array( [ [1. , 0.] , [0. ,-1.] ] )
+shear   = np.array( [ [0. , 1.] , [1. , 0.] ] )
+
 import math
 
 rho_large = 0.5 # Cut-off point below which to use Taylor series

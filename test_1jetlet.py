@@ -10,10 +10,6 @@ N = jpf.N # number of jetlets
 DIM = jpf.DIM # dimension of space
 SIGMA = jpf.SIGMA
 
-spin    = np.array( [ [0. ,-1.] , [1. , 0.] ] )
-stretch = np.array( [ [1. , 0.] , [0. ,-1.] ] )
-shear   = np.array( [ [0. , 1.] , [1. , 0.] ] )
-
 if N != 1:
     print 'This simulation requires N=1.'
     exit(1)
