@@ -28,7 +28,8 @@ for i in range(N_timestep):
 
 plt.figure()
 plt.xlabel('t')
-plt.plot(times,mu_comp[0],'b-',
-         times,mu_comp[1],'r-',
-         times,mu_comp[2],'g-')
+plt.plot(times,mu_comp[0],'b-',label='spin')
+plt.plot(times,mu_comp[1],'r-',label='stretch')
+plt.plot(times,mu_comp[2],'g-',label='shear')
+plt.legend(loc=1,framealpha=0.4)
 plt.show()
