@@ -17,8 +17,8 @@ mu = np.zeros([N,DIM,DIM])
 q1 = np.zeros([N,DIM,DIM])
 #p = np.random.rand(N,DIM) #initial 0-momentum of jetlets
 #mu = np.random.rand(N,DIM,DIM)
-#mu[0] = 0.5*spin
-#mu[1] = -0.5*spin
+#mu[0] = 0.5*jpf.spin
+#mu[1] = -0.5*jpf.spin
 #mu[0] = np.load('mu.npy')
 #p = -q*np.ones([N,DIM])
 #mu = np.random.randn(N,DIM,DIM)
@@ -36,13 +36,13 @@ q[0] = [-r0, 0 ]
 q[1] = [ r0, 0 ]
 p[0] = [-p0, d ]
 p[1] = [ p0,-d ]
-mu[0] =  omega*spin #+ 0.2*stretch
-mu[1] = -omega*spin
+mu[0] =  omega*jpf.spin #+ 0.2*jpf.stretch
+mu[1] = -omega*jpf.spin
 
 if N >= 3:
     q[2] = [ -2, -4.5 ]
     p[2][0] = 0.7
-#    mu[2] = 0.2*spin
+#    mu[2] = 0.2*jpf.spin
 
 T = 30.45
 

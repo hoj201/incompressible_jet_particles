@@ -22,9 +22,9 @@ mu_comp = np.zeros([3,N_timestep]) # spin, stretch, shear
 for i in range(N_timestep):
     q,p,mu,q1 = jpf.state_to_weinstein_darboux( y_data[i] )
 
-    mu_comp[0][i] = (mu[0][1][0]-mu[0][0][1])/2
-    mu_comp[1][i] = (mu[0][0][0]-mu[0][1][1])/2
-    mu_comp[2][i] = (mu[0][0][1]+mu[0][1][0])/2
+    mu_comp[0][i] = np.tensordot(mu[0],jpf.spin   ,axes=([0,1],[1,0]))/2
+    mu_comp[1][i] = np.tensordot(mu[0],jpf.stretch,axes=([0,1],[1,0]))/2
+    mu_comp[2][i] = np.tensordot(mu[0],jpf.shear  ,axes=([0,1],[1,0]))/2
 
 plt.figure()
 plt.xlabel('t')

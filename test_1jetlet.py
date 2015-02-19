@@ -23,7 +23,7 @@ for i in range(0,N):
     q1[i] = np.eye(DIM)
 
 # Initial 1-momentum of jetlets
-mu[0] =  -0.84*spin + 0.89*stretch
+mu[0] =  -0.84*jpf.spin + 0.89*jpf.stretch
 
 T = 15.0
 
