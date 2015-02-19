@@ -25,6 +25,7 @@ def display_velocity( q , p ,mu , mu2 = None):
  plt.quiver( nodes[:,0] , nodes[:,1] , U , V , scale=10 )
  plt.plot(q[:,0],q[:,1],'ro')
  for i in range(0,N):
+     if np.linalg.norm(p[i]) < 1e-4: continue
      plt.arrow(q[i,0], q[i,1], p[i,0], p[i,1], head_width=0.1, head_length=0.2, lw = 4.0, fc='b', ec='b')
      plt.arrow(q[i,0], q[i,1], p[i,0], p[i,1], head_width=0.1, head_length=0.2, lw = 2.0, fc='w', ec='w')
  plt.axis('equal')
