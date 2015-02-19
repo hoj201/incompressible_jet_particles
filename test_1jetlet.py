@@ -23,9 +23,9 @@ for i in range(0,N):
     q1[i] = np.eye(DIM)
 
 # Initial 1-momentum of jetlets
-mu[0] =  -0.5*spin + 1.2*stretch
+mu[0] =  -0.84*spin + 0.89*stretch
 
-T = 30.0
+T = 15.0
 
 Ei = jpf.Hamiltonian(q,p,mu)
 pi = jpf.lin_momentum(q,p,mu)
@@ -40,7 +40,7 @@ for i in range(0,N):
     print Ki[i]
 
 state =  jpf.weinstein_darboux_to_state( q , p , mu , q1 )
-step_max = 400
+step_max = 200
 t_span = np.linspace( 0. , T , step_max )
 y_span = odeint( jpf.ode_function , state , t_span , rtol=0.0000001 )
 np.save('state_data',y_span)

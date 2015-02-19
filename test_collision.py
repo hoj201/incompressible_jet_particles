@@ -30,7 +30,7 @@ for i in range(0,N):
 # Initial conditions:
 r0 = 3.0
 p0 = -1.5
-d = 0.33
+d = 0.28
 omega = 0.0
 q[0] = [-r0, 0 ]
 q[1] = [ r0, 0 ]
@@ -44,7 +44,7 @@ if N >= 3:
     p[2][0] = 0.7
 #    mu[2] = 0.2*spin
 
-T = 60.0
+T = 30.45
 
 #print 'testing various functions'
 #print  jpf.test_functions(1)
@@ -68,7 +68,7 @@ for i in range(0,N):
     print Ki[i]
 
 state =  jpf.weinstein_darboux_to_state( q , p , mu , q1 )
-step_max = 400
+step_max = 406
 t_span = np.linspace( 0. , T , step_max )
 y_span = odeint( jpf.ode_function , state , t_span , rtol=0.0000001 )
 np.save('state_data',y_span)
